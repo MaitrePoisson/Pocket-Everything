@@ -1,9 +1,13 @@
 package fr.grabmob.gametest;
 
 import fr.grabmob.chest.ChestCarrier;
+import fr.grabmob.config.GrabMobConfig;
 import fr.grabmob.data.CarriedChestData;
+import fr.grabmob.event.ChestEvents;
+import fr.grabmob.item.CarriedChestItem;
 import fr.grabmob.registry.ModDataComponents;
 import fr.grabmob.registry.ModItems;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,6 +17,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,9 +25,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
@@ -31,6 +39,9 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 @PrefixGameTestTemplate(false)
@@ -244,6 +255,179 @@ public final class ChestGameTests {
                 .useOn(new UseOnContext(helper.getLevel(), player, InteractionHand.MAIN_HAND, stack, hit));
         helper.assertTrue(result == InteractionResult.PASS, "sans composant, useOn doit passer");
         helper.assertTrue(stack.getCount() == 1 && helper.getBlockState(TARGET).isAir(), "rien ne doit être posé ni consommé");
+        helper.succeed();
+    }
+
+    private static BlockHitResult hitOn(GameTestHelper helper, BlockPos at) {
+        BlockPos abs = helper.absolutePos(at);
+        return new BlockHitResult(Vec3.atCenterOf(abs), Direction.UP, abs, false);
+    }
+
+    private static InteractionResult click(GameTestHelper helper, ServerPlayer player, InteractionHand hand, BlockPos at) {
+        return player.gameMode.useItemOn(player, helper.getLevel(), player.getItemInHand(hand), hand, hitOn(helper, at));
+    }
+
+    private static ItemStack carried(CarriedChestData data) {
+        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
+        stack.set(ModDataComponents.CARRIED_CHEST.get(), data);
+        return stack;
+    }
+
+    private static void assertCarrying(GameTestHelper helper, ServerPlayer player, boolean expected) {
+        helper.assertTrue(player.getMainHandItem().is(ModItems.CARRIED_CHEST.get()) == expected,
+                expected ? "le coffre aurait dû être en main" : "aucun coffre ne devait être en main");
+    }
+
+    private static void takeAndPlaceEndToEnd(GameTestHelper helper, GameType mode) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(mode);
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CompoundTag before = contentsOf(helper, SPOT);
+        player.setShiftKeyDown(true);
+        helper.assertTrue(click(helper, player, InteractionHand.MAIN_HAND, SPOT).consumesAction(), "le geste aurait dû être consommé");
+        helper.assertTrue(helper.getBlockState(SPOT).isAir(), "le coffre aurait dû disparaître");
+        helper.assertTrue(player.containerMenu == player.inventoryMenu, "le coffre ne doit pas s'ouvrir");
+        assertCarrying(helper, player, true);
+        helper.assertTrue(player.getMainHandItem().get(ModDataComponents.CARRIED_CHEST.get()).blockEntity().equals(before),
+                "le contenu porté doit être identique");
+        assertNothingDropped(helper);
+        click(helper, player, InteractionHand.MAIN_HAND, TARGET.below());
+        helper.assertTrue(contentsOf(helper, TARGET).equals(before), "le contenu posé doit être identique");
+        assertCarrying(helper, player, false);
+        assertNothingDropped(helper);
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void gestureTakesAndPlacesInCreative(GameTestHelper helper) {
+        takeAndPlaceEndToEnd(helper, GameType.CREATIVE);
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void gestureTakesAndPlacesInSurvival(GameTestHelper helper) {
+        takeAndPlaceEndToEnd(helper, GameType.SURVIVAL);
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void adventureModeCannotTake(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.ADVENTURE);
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        player.setShiftKeyDown(true);
+        click(helper, player, InteractionHand.MAIN_HAND, SPOT);
+        helper.assertTrue(helper.getBlockState(SPOT).is(Blocks.CHEST), "le coffre doit rester en mode aventure");
+        assertCarrying(helper, player, false);
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void gestureNeedsSneakAndFreeHands(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        click(helper, player, InteractionHand.MAIN_HAND, SPOT);
+        helper.assertTrue(helper.getBlockState(SPOT).is(Blocks.CHEST), "sans sneak le coffre doit rester");
+        assertCarrying(helper, player, false);
+        player.setShiftKeyDown(true);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STICK));
+        click(helper, player, InteractionHand.MAIN_HAND, SPOT);
+        helper.assertTrue(helper.getBlockState(SPOT).is(Blocks.CHEST), "main pleine : le coffre doit rester");
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.STICK));
+        CompoundTag before = contentsOf(helper, SPOT);
+        click(helper, player, InteractionHand.MAIN_HAND, SPOT);
+        helper.assertTrue(helper.getBlockState(SPOT).is(Blocks.CHEST) && contentsOf(helper, SPOT).equals(before),
+                "main secondaire pleine : le coffre doit rester intact");
+        assertCarrying(helper, player, false);
+        helper.assertTrue(player.getOffhandItem().is(Items.STICK), "l'objet de la main secondaire doit rester");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void configDisablesTheGesture(GameTestHelper helper) {
+        if (!GrabMobConfig.SPEC.isLoaded()) {
+            helper.succeed();
+            return;
+        }
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        player.setShiftKeyDown(true);
+        GrabMobConfig.CARRY_CHESTS_ENABLED.set(false);
+        try {
+            click(helper, player, InteractionHand.MAIN_HAND, SPOT);
+        } finally {
+            GrabMobConfig.CARRY_CHESTS_ENABLED.set(true);
+        }
+        helper.assertTrue(helper.getBlockState(SPOT).is(Blocks.CHEST), "config désactivée : le coffre doit rester");
+        assertCarrying(helper, player, false);
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void offHandIsBlockedWhileCarrying(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CarriedChestData data = take(helper, player, SPOT);
+        player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
+        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.COBBLESTONE, 5));
+        helper.assertTrue(NeoForge.EVENT_BUS.post(new LivingSwapItemsEvent.Hands(player)).isCanceled(),
+                "l'échange des mains doit être annulé");
+        helper.assertTrue(!click(helper, player, InteractionHand.OFF_HAND, TARGET.below()).consumesAction()
+                && helper.getBlockState(TARGET).isAir(), "la pose depuis la main secondaire doit être refusée");
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        helper.assertTrue(player.getOffhandItem().isEmpty(), "la main secondaire doit être vidée");
+        helper.assertTrue(player.getInventory().contains(new ItemStack(Items.COBBLESTONE)), "l'objet doit retourner à l'inventaire");
+        assertCarrying(helper, player, true);
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void nestedCarriedChestIsRefused(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT.east(2), Blocks.CHEST.defaultBlockState());
+        CarriedChestData inner = take(helper, player, SPOT.east(2));
+        ChestBlockEntity chest = filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        chest.setItem(0, carried(inner));
+        CompoundTag before = contentsOf(helper, SPOT);
+        helper.assertTrue(take(helper, player, SPOT) == null, "un coffre contenant un coffre porté ne doit pas être pris");
+        helper.assertTrue(contentsOf(helper, SPOT).equals(before), "le coffre doit rester intact");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void droppedChestIsIndestructible(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CarriedChestData data = take(helper, player, SPOT);
+        Vec3 at = helper.absoluteVec(new Vec3(3.5, 3, 3.5));
+        ItemEntity drop = new ItemEntity(helper.getLevel(), at.x, at.y, at.z, carried(data));
+        helper.getLevel().addFreshEntity(drop);
+        helper.runAfterDelay(3, () -> {
+            helper.assertTrue(drop.isInvulnerable() && !drop.hurt(helper.getLevel().damageSources().explosion(null), 100.0F),
+                    "l'objet lâché doit être invulnérable");
+            helper.assertTrue(drop.getAge() < 0, "l'objet lâché ne doit pas disparaître avec le temps");
+            helper.assertTrue(!drop.isRemoved() && data.equals(drop.getItem().get(ModDataComponents.CARRIED_CHEST.get())),
+                    "le contenu doit rester intact");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void nameAndTooltipDescribeTheChest(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        ItemStack named = carried(take(helper, player, SPOT));
+        helper.assertTrue(named.getHoverName().getContents() instanceof TranslatableContents key
+                && CarriedChestItem.KEY_NAMED.equals(key.getKey()), "le nom personnalisé doit apparaître");
+        List<Component> tooltip = new ArrayList<>();
+        named.getItem().appendHoverText(named, Item.TooltipContext.EMPTY, tooltip, TooltipFlag.NORMAL);
+        helper.assertTrue(tooltip.size() == 1 && tooltip.get(0).getContents() instanceof TranslatableContents line
+                && CarriedChestItem.KEY_CONTENTS.equals(line.getKey()) && line.getArgs()[0].equals(27),
+                "l'infobulle doit compter les 27 piles");
+        helper.setBlock(SPOT, Blocks.CHEST.defaultBlockState());
+        ItemStack plain = carried(take(helper, player, SPOT));
+        helper.assertTrue(plain.getHoverName().getContents() instanceof TranslatableContents key
+                && CarriedChestItem.KEY_NAME.equals(key.getKey()), "un coffre ordinaire garde le nom par défaut");
+        helper.assertTrue(!ChestEvents.isCarrying(player), "rien en main");
         helper.succeed();
     }
 }

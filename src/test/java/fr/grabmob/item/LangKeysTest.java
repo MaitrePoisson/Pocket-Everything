@@ -20,11 +20,15 @@ class LangKeysTest {
             "item.grabmob.captured_entity",
             "item.grabmob.captured_entity.named",
             "item.grabmob.carried_chest",
+            "item.grabmob.carried_chest.named",
             "message.grabmob.cannot_capture",
+            "message.grabmob.cannot_carry_hands",
             "message.grabmob.cannot_carry_locked",
+            "message.grabmob.cannot_carry_nested",
             "message.grabmob.cannot_carry_protected",
             "message.grabmob.cannot_place_chest",
             "message.grabmob.cannot_release",
+            "tooltip.grabmob.chest_contents",
             "tooltip.grabmob.health",
             "tooltip.grabmob.profession");
 

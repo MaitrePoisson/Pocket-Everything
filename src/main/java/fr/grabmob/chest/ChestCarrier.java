@@ -44,6 +44,7 @@ public final class ChestCarrier {
 
     public static final String KEY_LOCKED = "message.grabmob.cannot_carry_locked";
     public static final String KEY_PROTECTED = "message.grabmob.cannot_carry_protected";
+    public static final String KEY_NESTED = "message.grabmob.cannot_carry_nested";
     public static final String KEY_CANNOT_PLACE = "message.grabmob.cannot_place_chest";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChestCarrier.class);
@@ -85,6 +86,10 @@ public final class ChestCarrier {
         LockCode lock = LockCode.fromTag(before);
         if (lock != LockCode.NO_LOCK && !lock.unlocksWith(player.getMainHandItem())) {
             refuse(player, KEY_LOCKED);
+            return Optional.empty();
+        }
+        if (CarriedChestData.containsCarriedChest(before)) {
+            refuse(player, KEY_NESTED);
             return Optional.empty();
         }
         if (!level.mayInteract(player, pos) || player.blockActionRestricted(level, pos, player.gameMode.getGameModeForPlayer())

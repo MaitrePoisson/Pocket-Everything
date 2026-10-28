@@ -1,6 +1,8 @@
 package fr.grabmob.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.SharedConstants;
@@ -62,5 +64,24 @@ class CarriedChestDataTest {
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY);
         CarriedChestData.STREAM_CODEC.encode(buffer, original);
         assertEquals(original, CarriedChestData.STREAM_CODEC.decode(buffer));
+    }
+
+    @Test
+    void stackCountCountsOccupiedSlots() {
+        assertEquals(27, sample().stackCount());
+        assertEquals(0, new CarriedChestData(Blocks.CHEST.defaultBlockState(), new CompoundTag()).stackCount());
+    }
+
+    @Test
+    void nestedCarriedChestIsDetected() {
+        CompoundTag inner = new CompoundTag();
+        inner.putString("id", CarriedChestData.ITEM_ID);
+        ListTag items = new ListTag();
+        items.add(inner);
+        CompoundTag tag = new CompoundTag();
+        tag.put("Items", items);
+        assertTrue(CarriedChestData.containsCarriedChest(tag));
+        assertFalse(CarriedChestData.containsCarriedChest(sample().blockEntity()));
+        assertFalse(CarriedChestData.containsCarriedChest(new CompoundTag()));
     }
 }

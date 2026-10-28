@@ -3,6 +3,8 @@ package fr.grabmob.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,4 +23,20 @@ public record CarriedChestData(BlockState state, CompoundTag blockEntity) {
             ByteBufCodecs.COMPOUND_TAG, CarriedChestData::blockEntity,
             CarriedChestData::new
     );
+
+    public static final String ITEM_ID = "grabmob:carried_chest";
+
+    public int stackCount() {
+        return blockEntity.getList("Items", Tag.TAG_COMPOUND).size();
+    }
+
+    public static boolean containsCarriedChest(CompoundTag blockEntity) {
+        ListTag items = blockEntity.getList("Items", Tag.TAG_COMPOUND);
+        for (int i = 0; i < items.size(); i++) {
+            if (ITEM_ID.equals(items.getCompound(i).getString("id"))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

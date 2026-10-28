@@ -9,6 +9,7 @@ public final class GrabMobConfig {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ALLOW_HOSTILE;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> EXTRA_BLACKLIST;
+    public static final ModConfigSpec.BooleanValue CARRY_CHESTS_ENABLED;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -18,6 +19,9 @@ public final class GrabMobConfig {
         EXTRA_BLACKLIST = builder
                 .comment("Additional entity type ids that cannot be captured, for example \"minecraft:warden\".")
                 .defineListAllowEmpty("extraBlacklist", List.of(), () -> "modid:entity", GrabMobConfig::isValidId);
+        CARRY_CHESTS_ENABLED = builder
+                .comment("Allow taking chests in hand (sneak + empty-handed right click) and placing them back.")
+                .define("carryChestsEnabled", true);
         SPEC = builder.build();
     }
 
@@ -30,6 +34,10 @@ public final class GrabMobConfig {
 
     public static boolean allowHostile() {
         return !SPEC.isLoaded() || ALLOW_HOSTILE.get();
+    }
+
+    public static boolean carryChestsEnabled() {
+        return !SPEC.isLoaded() || CARRY_CHESTS_ENABLED.get();
     }
 
     public static boolean isExtraBlacklisted(ResourceLocation id) {

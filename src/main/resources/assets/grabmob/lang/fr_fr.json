@@ -2,11 +2,15 @@
   "item.grabmob.captured_entity": "Entité capturée",
   "item.grabmob.captured_entity.named": "Entité capturée : %s",
   "item.grabmob.carried_chest": "Coffre porté",
+  "item.grabmob.carried_chest.named": "Coffre porté : %s",
   "message.grabmob.cannot_capture": "Cette créature ne peut pas être capturée.",
   "message.grabmob.cannot_release": "Cette créature ne peut pas être relâchée ici.",
   "message.grabmob.cannot_carry_locked": "Vous ne pouvez pas prendre un coffre verrouillé.",
   "message.grabmob.cannot_carry_protected": "Vous ne pouvez pas prendre ce coffre ici.",
+  "message.grabmob.cannot_carry_hands": "Vos deux mains doivent être libres pour prendre un coffre.",
+  "message.grabmob.cannot_carry_nested": "Ce coffre contient un coffre porté et ne peut pas être pris.",
   "message.grabmob.cannot_place_chest": "Le coffre ne peut pas être posé ici.",
+  "tooltip.grabmob.chest_contents": "Contenu : %s piles",
   "tooltip.grabmob.health": "Vie : %s / %s",
   "tooltip.grabmob.profession": "Métier : %s"
 }

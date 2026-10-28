@@ -2,11 +2,15 @@
   "item.grabmob.captured_entity": "Captured Entity",
   "item.grabmob.captured_entity.named": "Captured Entity: %s",
   "item.grabmob.carried_chest": "Carried Chest",
+  "item.grabmob.carried_chest.named": "Carried Chest: %s",
   "message.grabmob.cannot_capture": "This creature cannot be captured.",
   "message.grabmob.cannot_release": "This creature cannot be released here.",
   "message.grabmob.cannot_carry_locked": "You cannot take a locked chest.",
   "message.grabmob.cannot_carry_protected": "You cannot take this chest here.",
+  "message.grabmob.cannot_carry_hands": "Both hands must be free to take a chest.",
+  "message.grabmob.cannot_carry_nested": "This chest holds a carried chest and cannot be taken.",
   "message.grabmob.cannot_place_chest": "The chest cannot be placed here.",
+  "tooltip.grabmob.chest_contents": "Contents: %s stacks",
   "tooltip.grabmob.health": "Health: %s / %s",
   "tooltip.grabmob.profession": "Profession: %s"
 }
