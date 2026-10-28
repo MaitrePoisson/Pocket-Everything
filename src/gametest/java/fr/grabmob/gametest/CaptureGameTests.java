@@ -42,7 +42,7 @@ public final class CaptureGameTests {
         helper.assertTrue(captured.get().entityType().equals(ResourceLocation.withDefaultNamespace("cow")),
                 "l'identifiant stocké devrait être minecraft:cow");
 
-        Vec3 target = helper.absoluteVec(new Vec3(5.5, 1.0, 5.5));
+        Vec3 target = helper.absoluteVec(new Vec3(5.5, 2.0, 5.5));
         Optional<Entity> released = EntityCapturer.release(helper.getLevel(), captured.get(), target, 90.0F);
         helper.assertTrue(released.isPresent(), "la vache aurait dû être relâchée");
         Entity back = released.get();

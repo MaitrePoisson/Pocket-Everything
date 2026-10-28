@@ -77,13 +77,12 @@ public final class EventGameTests {
     }
 
     @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
-    public static void blacklistedTargetKeepsEntityAndCancels(GameTestHelper helper) {
+    public static void blacklistedTargetKeepsEntityAndIsNotIntercepted(GameTestHelper helper) {
         ArmorStand stand =
                 helper.spawn(EntityType.ARMOR_STAND, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setShiftKeyDown(true);
-        InteractionResult result = player.interactOn(stand, InteractionHand.MAIN_HAND);
-        helper.assertTrue(result.consumesAction(), "l'interaction doit être annulée avec succès");
+        player.interactOn(stand, InteractionHand.MAIN_HAND);
         helper.assertTrue(!stand.isRemoved(), "l'entité en liste noire doit rester");
         helper.assertTrue(player.getMainHandItem().isEmpty(), "aucun item ne doit être donné");
         helper.succeed();

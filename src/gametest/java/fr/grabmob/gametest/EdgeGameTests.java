@@ -76,7 +76,8 @@ public final class EdgeGameTests {
         helper.assertTrue(ModEvents.tryCapture(player, cow), "la capture doit réussir même inventaire plein");
         helper.assertTrue(cow.isRemoved(), "la vache doit disparaître");
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class,
-                player.getBoundingBox().inflate(6.0), item -> item.getItem().is(ModItems.CAPTURED_ENTITY.get()));
+                player.getBoundingBox().inflate(3.0), item -> item.getItem().is(ModItems.CAPTURED_ENTITY.get())
+                        && item.position().distanceToSqr(player.getEyePosition()) < 1.0);
         boolean inInventory = player.getInventory().items.stream().anyMatch(s -> s.is(ModItems.CAPTURED_ENTITY.get()));
         helper.assertTrue(drops.size() == 1 || inInventory, "l'item capturé ne doit jamais être perdu");
         helper.succeed();

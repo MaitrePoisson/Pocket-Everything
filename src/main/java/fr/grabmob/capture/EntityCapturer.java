@@ -13,10 +13,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.Villager;
@@ -31,10 +33,14 @@ public final class EntityCapturer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityCapturer.class);
 
-    private static final String[] TRANSIENT_KEYS = {"UUID", "Pos", "Motion", "Passengers", "Leash", "leash", "Brain"};
+    private static final String[] TRANSIENT_KEYS = {"UUID", "Pos", "Motion", "Passengers", "Leash", "leash", "Brain",
+            "FallDistance", "Fire", "Fuse", "ignited", "HurtTime", "HurtByTimestamp", "DeathTime"};
 
     private static final List<MemoryModuleType<GlobalPos>> POI_MEMORIES = List.of(MemoryModuleType.JOB_SITE,
             MemoryModuleType.POTENTIAL_JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT);
+
+    private static final double MAX_LIFT = 1.0D;
+    private static final double LIFT_STEP = 0.25D;
 
     private EntityCapturer() {
     }
@@ -43,21 +49,28 @@ public final class EntityCapturer {
         if (entity == null || entity.isRemoved() || !entity.isAlive()) {
             return false;
         }
-        EntityType<?> type = entity.getType();
-        if (!type.canSerialize() || type.is(BLACKLIST)) {
+        return entity instanceof LivingEntity && isAllowedType(entity.getType()) && isHostileAllowed(entity);
+    }
+
+    private static boolean isAllowedType(EntityType<?> type) {
+        if (!type.canSerialize() || type.is(BLACKLIST) || !BuiltInRegistries.ENTITY_TYPE.containsValue(type)) {
             return false;
         }
-        if (!BuiltInRegistries.ENTITY_TYPE.containsValue(type)) {
-            return false;
-        }
-        if (GrabMobConfig.isExtraBlacklisted(BuiltInRegistries.ENTITY_TYPE.getKey(type))) {
-            return false;
-        }
+        return !GrabMobConfig.isExtraBlacklisted(BuiltInRegistries.ENTITY_TYPE.getKey(type));
+    }
+
+    private static boolean isHostileAllowed(Entity entity) {
         return GrabMobConfig.allowHostile() || !(entity instanceof Enemy);
     }
 
+    private static boolean isOwnedByAnother(ServerPlayer player, Entity entity) {
+        return entity instanceof OwnableEntity pet && pet.getOwnerUUID() != null
+                && !pet.getOwnerUUID().equals(player.getUUID());
+    }
+
     public static Optional<CapturedEntityData> capture(ServerPlayer player, Entity entity) {
-        if (player == null || !canCapture(entity) || entity.level() != player.level()) {
+        if (player == null || !canCapture(entity) || entity.level() != player.level()
+                || isOwnedByAnother(player, entity)) {
             return Optional.empty();
         }
         try {
@@ -90,26 +103,39 @@ public final class EntityCapturer {
         }
     }
 
+    private static boolean placeWithoutCollision(ServerLevel level, Entity entity, Vec3 pos, float yaw) {
+        for (double lift = 0.0D; lift <= MAX_LIFT; lift += LIFT_STEP) {
+            entity.moveTo(pos.x, pos.y + lift, pos.z, yaw, 0.0F);
+            if (level.noCollision(entity)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static Optional<Entity> release(ServerLevel level, CapturedEntityData data, Vec3 pos, float yaw) {
         if (level == null || data == null || pos == null) {
             return Optional.empty();
         }
         Optional<EntityType<?>> type = BuiltInRegistries.ENTITY_TYPE.getOptional(data.entityType());
-        if (type.isEmpty()) {
+        if (type.isEmpty() || !isAllowedType(type.get())) {
             return Optional.empty();
         }
         try {
             Entity entity = type.get().create(level);
-            if (entity == null) {
+            if (entity == null || !isHostileAllowed(entity)
+                    || entity instanceof Enemy && level.getDifficulty() == Difficulty.PEACEFUL) {
                 return Optional.empty();
             }
             entity.load(data.tag().copy());
-            entity.moveTo(pos.x, pos.y, pos.z, yaw, 0.0F);
             entity.setYHeadRot(yaw);
             if (entity instanceof LivingEntity living) {
                 living.setYBodyRot(yaw);
             }
-            if (!level.addFreshEntity(entity)) {
+            if (entity instanceof Mob mob) {
+                mob.setPersistenceRequired();
+            }
+            if (!placeWithoutCollision(level, entity, pos, yaw) || !level.addFreshEntity(entity)) {
                 return Optional.empty();
             }
             return Optional.of(entity);

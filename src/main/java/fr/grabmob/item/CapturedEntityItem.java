@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -47,6 +49,11 @@ public class CapturedEntityItem extends Item {
         }
         BlockPos target = context.getClickedPos().relative(context.getClickedFace());
         Vec3 position = Vec3.atBottomCenterOf(target);
+        if (context.getClickedFace() == Direction.DOWN) {
+            double height = BuiltInRegistries.ENTITY_TYPE.getOptional(data.entityType())
+                    .map(type -> (double) type.getHeight()).orElse(0.0D);
+            position = new Vec3(position.x, context.getClickedPos().getY() - height, position.z);
+        }
         Player player = context.getPlayer();
         float yaw = player != null ? player.getYRot() + 180.0F : context.getRotation();
         Optional<Entity> released = EntityCapturer.release(level, data, position, yaw);
@@ -60,6 +67,7 @@ public class CapturedEntityItem extends Item {
         if (player != null && player.hasInfiniteMaterials() && stack.isEmpty()) {
             player.setItemInHand(context.getHand(), ItemStack.EMPTY);
         }
+        level.sendParticles(ParticleTypes.POOF, position.x, position.y + 0.5D, position.z, 10, 0.3D, 0.3D, 0.3D, 0.02D);
         level.playSound(null, target, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.6F, 1.2F);
         return InteractionResult.CONSUME;
     }

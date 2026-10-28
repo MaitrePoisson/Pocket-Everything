@@ -31,9 +31,22 @@ public final class CapturedEntityRenderer extends BlockEntityWithoutLevelRendere
     private static final int CACHE_SIZE = 32;
     private static final int FIXED_TICK = 0;
 
-    private final Map<CapturedEntityData, Optional<Entity>> cache = new LinkedHashMap<>(16, 0.75F, true) {
+    private record IdentityKey(CapturedEntityData data) {
+
         @Override
-        protected boolean removeEldestEntry(Map.Entry<CapturedEntityData, Optional<Entity>> eldest) {
+        public boolean equals(Object other) {
+            return other instanceof IdentityKey key && key.data == data;
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(data);
+        }
+    }
+
+    private final Map<IdentityKey, Optional<Entity>> cache = new LinkedHashMap<>(16, 0.75F, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<IdentityKey, Optional<Entity>> eldest) {
             return size() > CACHE_SIZE;
         }
     };
@@ -116,7 +129,7 @@ public final class CapturedEntityRenderer extends BlockEntityWithoutLevelRendere
             cache.clear();
             cachedLevel = level;
         }
-        return cache.computeIfAbsent(data, key -> build(level, key)).orElse(null);
+        return cache.computeIfAbsent(new IdentityKey(data), key -> build(level, key.data())).orElse(null);
     }
 
     private static Optional<Entity> build(ClientLevel level, CapturedEntityData data) {

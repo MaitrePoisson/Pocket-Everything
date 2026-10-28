@@ -33,6 +33,7 @@ public final class ModEvents {
         return hand == InteractionHand.MAIN_HAND
                 && player.isShiftKeyDown()
                 && !player.isSpectator()
+                && player.getAbilities().mayBuild
                 && player.getMainHandItem().isEmpty()
                 && !(target instanceof Player);
     }
@@ -42,6 +43,9 @@ public final class ModEvents {
         Player player = event.getEntity();
         Entity target = event.getTarget();
         if (!isCaptureGesture(player, event.getHand(), target)) {
+            return;
+        }
+        if (!EntityCapturer.canCapture(target)) {
             return;
         }
         if (player instanceof ServerPlayer serverPlayer && !player.level().isClientSide()) {
@@ -62,6 +66,9 @@ public final class ModEvents {
         double z = target.getZ();
         double spreadX = target.getBbWidth() / 2.0;
         double spreadY = target.getBbHeight() / 3.0;
+        if (level.getServer().isUnderSpawnProtection(level, target.blockPosition(), player)) {
+            return false;
+        }
         Optional<CapturedEntityData> data = EntityCapturer.capture(player, target);
         if (data.isEmpty()) {
             return false;
@@ -79,7 +86,7 @@ public final class ModEvents {
             player.setItemInHand(InteractionHand.MAIN_HAND, stack);
             return;
         }
-        if (!player.getInventory().add(stack)) {
+        if (player.getInventory().getFreeSlot() < 0 || !player.getInventory().add(stack)) {
             player.drop(stack, false);
         }
     }

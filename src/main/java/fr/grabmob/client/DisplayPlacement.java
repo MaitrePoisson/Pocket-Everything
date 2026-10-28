@@ -15,11 +15,11 @@ public record DisplayPlacement(float x, float y, float z, float rollDegrees, flo
 
     public static DisplayPlacement firstPerson(boolean leftHand) {
         float yaw = leftHand ? 30.0F : -30.0F;
-        return new DisplayPlacement(0.5F, 0.95F, 0.5F, 0.0F, 0.0F, yaw, 0.6F, 1.0F, true);
+        return new DisplayPlacement(0.5F, 0.95F, 0.5F, 0.0F, 0.0F, yaw, 0.5F, 1.0F, true);
     }
 
     public static DisplayPlacement thirdPerson() {
-        return new DisplayPlacement(0.5F, 0.5F, 0.5F, 0.0F, 90.0F, 0.0F, 1.0F, 1.0F, false);
+        return new DisplayPlacement(0.5F, 0.5F, 0.5F, 0.0F, 90.0F, 0.0F, 1.4F, 1.0F, false);
     }
 
     public static DisplayPlacement ground() {
