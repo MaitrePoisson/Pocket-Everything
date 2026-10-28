@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center">
   <img src="docs/images/logo.png" alt="Logo du projet Pocket-Everything : un villageois, un cochon et un coffre posés sur une main" width="200">
 </p>
@@ -177,3 +178,6 @@ Les messages de commit sont courts, à l'impératif, et décrivent ce que le com
 ## Licence
 
 [MIT](LICENSE). Aucune ressource tierce : voir `docs/CREDITS.md`.
+=======
+# Pocket-Everything
+>>>>>>> 765a50eade7bbe4463df7d593ecaec1ac97c4ab0
