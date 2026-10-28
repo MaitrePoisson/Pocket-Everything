@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/logo.png" alt="Logo du projet Grab-Mob : un villageois, un cochon et un coffre posés sur une main" width="200">
+</p>
+
 # Grab-Mob
 
 Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre dans les deux mains**, contenu compris, et de le reposer à l'identique.
@@ -131,13 +135,13 @@ src/main/java/fr/grabmob/
   item/                           Objets Captured Entity et Carried Chest
   registry/                       Enregistrement des objets et des composants
   client/                         Rendu (modèles, bras, échelle) — côté client seulement
-src/main/resources/               Langues, modèles, étiquettes, descripteur du mod
+src/main/resources/               Langues, modèles, étiquettes, descripteur du mod, logo.png et pack.png
 src/test/                         Tests unitaires JUnit 5
 src/gametest/                     Tests de jeu (GameTests), hors du jar
 src/dev/                          Outil de captures d'écran du client de développement
-tools/                            Générateur de la structure vide des GameTests
+tools/                            Générateur de la structure vide des GameTests, déclinaisons du logo (make_logo.py)
 deliverable/                      Jar prêt à installer
-docs/                             Crédits et images du README
+docs/                             Crédits, logo et images du README
 TEST_GUIDE.md                     Guide de test manuel
 ```
 

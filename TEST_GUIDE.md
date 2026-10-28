@@ -80,3 +80,8 @@
 - [ ] Le serveur démarre sans erreur avec le jar. Un client avec le mod capture/relâche, et un second joueur voit la créature réapparaître.
 - [ ] Un client sans le mod : refus attendu à la connexion (le mod ajoute un objet et un composant de données, mod requis des deux côtés ; à confirmer en jeu).
 - [ ] Villageois à beaucoup d'échanges (60 offres ≈ 11 Ko) : la capture ne déconnecte personne.
+
+### Logo
+- [ ] Écran « Mods » de NeoForge : Grab-Mob affiche le logo (pixel net, non flou) à côté de son nom et de sa description.
+- [ ] Écran des packs de ressources : l'icône du pack de Grab-Mob est le logo.
+- [ ] README sur GitHub : logo centré en tête, sans image cassée.
