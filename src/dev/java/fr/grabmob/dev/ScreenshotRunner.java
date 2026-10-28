@@ -26,6 +26,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerData;
@@ -191,7 +192,37 @@ public final class ScreenshotRunner {
             mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
             holdInHand(mc, STACKS.get(2));
         }));
+        SHOTS.add(new Shot("third_back_cow", () -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            holdInHand(mc, STACKS.get(1));
+        }));
+        SHOTS.add(new Shot("third_villager_baby", () -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            holdInHand(mc, STACKS.get(3));
+        }));
+        SHOTS.add(new Shot("third_left_cow", () -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            holdInHand(mc, STACKS.get(1));
+            mc.options.mainHand().set(HumanoidArm.LEFT);
+        }));
+        SHOTS.add(new Shot("hand_left_cow", () -> {
+            mc.options.setCameraType(CameraType.FIRST_PERSON);
+            holdInHand(mc, STACKS.get(1));
+            mc.options.mainHand().set(HumanoidArm.LEFT);
+        }));
+        SHOTS.add(new Shot("hand_off_golem", () -> {
+            mc.options.setCameraType(CameraType.FIRST_PERSON);
+            clearHand(mc);
+            mc.player.getInventory().offhand.set(0, STACKS.get(2).copy());
+        }));
+        SHOTS.add(new Shot("third_off_golem", () -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            clearHand(mc);
+            mc.player.getInventory().offhand.set(0, STACKS.get(2).copy());
+        }));
         SHOTS.add(new Shot("ground", () -> {
+            mc.options.mainHand().set(HumanoidArm.RIGHT);
+            mc.player.getInventory().offhand.set(0, ItemStack.EMPTY);
             mc.options.setCameraType(CameraType.FIRST_PERSON);
             clearHand(mc);
             LocalPlayer player = mc.player;
@@ -225,6 +256,8 @@ public final class ScreenshotRunner {
     private static void holdInHand(Minecraft mc, ItemStack stack) {
         LocalPlayer player = mc.player;
         player.getInventory().items.set(player.getInventory().selected, stack.copy());
+        player.getInventory().offhand.set(0, ItemStack.EMPTY);
+        mc.options.mainHand().set(HumanoidArm.RIGHT);
         player.setXRot(0.0F);
     }
 
