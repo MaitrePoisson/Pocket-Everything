@@ -16,6 +16,7 @@ java {
 
 sourceSets {
     gametest
+    dev
 }
 
 repositories {
@@ -33,6 +34,7 @@ neoForge {
         grabmob {
             sourceSet sourceSets.main
             sourceSet sourceSets.gametest
+            sourceSet sourceSets.dev
         }
     }
 
@@ -51,6 +53,12 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
+        screenshot {
+            client()
+            gameDirectory = file("runs/screenshot")
+            systemProperty "grabmob.screenshot.dir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath
+            programArguments = ["--width", "960", "--height", "540"]
+        }
         gameTestServer {
             type = 'gameTestServer'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
@@ -59,9 +67,11 @@ neoForge {
 }
 
 neoForge.addModdingDependenciesTo(sourceSets.gametest)
+neoForge.addModdingDependenciesTo(sourceSets.dev)
 
 dependencies {
     gametestImplementation sourceSets.main.output
+    devImplementation sourceSets.main.output
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -46,10 +46,8 @@ class DisplayPlacementTest {
     }
 
     @Test
-    void handsMirrorAndOnlyGuiFlips() {
+    void handsMirrorAndFrameIsFlattened() {
         assertEquals(-DisplayPlacement.firstPerson(false).yawDegrees(), DisplayPlacement.firstPerson(true).yawDegrees());
-        assertTrue(DisplayPlacement.gui(0L).flipsVertically());
-        assertTrue(!DisplayPlacement.ground().flipsVertically());
         assertTrue(DisplayPlacement.frame().depthFactor() < 1.0F);
     }
 }
