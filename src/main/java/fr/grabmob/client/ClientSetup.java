@@ -16,5 +16,6 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new CapturedEntityClientExtensions(), ModItems.CAPTURED_ENTITY.get());
+        event.registerItem(new CarriedChestClientExtensions(), ModItems.CARRIED_CHEST.get());
     }
 }

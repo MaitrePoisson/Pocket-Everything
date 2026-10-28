@@ -3,6 +3,7 @@ package fr.grabmob.dev;
 import com.mojang.blaze3d.platform.NativeImage;
 import fr.grabmob.GrabMob;
 import fr.grabmob.data.CapturedEntityData;
+import fr.grabmob.data.CarriedChestData;
 import fr.grabmob.registry.ModDataComponents;
 import fr.grabmob.registry.ModItems;
 import java.io.IOException;
@@ -35,6 +36,8 @@ import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.levelgen.WorldOptions;
@@ -172,6 +175,8 @@ public final class ScreenshotRunner {
             villager.setVillagerData(new VillagerData(VillagerType.PLAINS, VillagerProfession.FARMER, 2));
             villager.setAge(-24000);
         });
+        addChest("chest", Blocks.CHEST.defaultBlockState());
+        addChest("trapped_chest", Blocks.TRAPPED_CHEST.defaultBlockState());
         SHOTS.add(new Shot("gui", () -> {
             clearHand(mc);
             guiGrid = true;
@@ -191,6 +196,14 @@ public final class ScreenshotRunner {
         SHOTS.add(new Shot("third_golem", () -> {
             mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
             holdInHand(mc, STACKS.get(2));
+        }));
+        SHOTS.add(new Shot("third_chest", () -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            holdInHand(mc, STACKS.get(4));
+        }));
+        SHOTS.add(new Shot("third_back_chest", () -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            holdInHand(mc, STACKS.get(5));
         }));
         SHOTS.add(new Shot("third_back_cow", () -> {
             mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
@@ -249,6 +262,13 @@ public final class ScreenshotRunner {
         ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY.get());
         stack.set(ModDataComponents.CAPTURED_ENTITY.get(),
                 new CapturedEntityData(BuiltInRegistries.ENTITY_TYPE.getKey(type), tag));
+        STACKS.add(stack);
+        NAMES.add(name);
+    }
+
+    private static void addChest(String name, BlockState state) {
+        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
+        stack.set(ModDataComponents.CARRIED_CHEST.get(), new CarriedChestData(state, new CompoundTag()));
         STACKS.add(stack);
         NAMES.add(name);
     }
