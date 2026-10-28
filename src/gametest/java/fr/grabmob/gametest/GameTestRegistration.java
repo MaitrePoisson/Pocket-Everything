@@ -16,5 +16,6 @@ public final class GameTestRegistration {
         event.register(CaptureGameTests.class);
         event.register(ItemGameTests.class);
         event.register(EventGameTests.class);
+        event.register(VillagerGameTests.class);
     }
 }

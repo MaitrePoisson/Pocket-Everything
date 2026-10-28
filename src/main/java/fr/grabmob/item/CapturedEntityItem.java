@@ -53,6 +53,9 @@ public class CapturedEntityItem extends Item {
             return InteractionResult.FAIL;
         }
         stack.shrink(1);
+        if (player != null && player.hasInfiniteMaterials() && stack.isEmpty()) {
+            player.setItemInHand(context.getHand(), ItemStack.EMPTY);
+        }
         level.playSound(null, target, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.6F, 1.2F);
         return InteractionResult.CONSUME;
     }
