@@ -49,6 +49,13 @@
 - [ ] Grandes entités (golem, cheval) : lisibles, pas démesurées ; bébés plus petits.
 - [ ] Plusieurs créatures différentes dans la barre rapide : chaque objet montre sa propre créature.
 
+### Bras visible
+- [ ] Première personne : avec un objet capturé en main, le bras du joueur (avec sa peau) est visible et tient la créature, sans qu'elle flotte. Vérifier avec une abeille, une vache, un golem et un villageois bébé.
+- [ ] Le bras suit l'équipement de l'objet, le balancement de marche et les mouvements de caméra, sans décalage.
+- [ ] Main secondaire (objet en main gauche) et joueur gaucher (Options > Compétences > Bras principal) : le bon bras apparaît, à la bonne place.
+- [ ] Troisième personne (F5, de face et de dos) : le bras du modèle du joueur tient l'objet.
+- [ ] Main vide, ou autre objet en main : rendu inchangé par rapport à Minecraft.
+
 ### Configuration
 - [ ] `config/grabmob-common.toml` : `allowHostile=false` interdit zombies, creepers... ; `extraBlacklist=["minecraft:cow"]` interdit les vaches.
 
