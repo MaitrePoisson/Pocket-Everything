@@ -7,6 +7,7 @@ import fr.grabmob.event.ChestEvents;
 import fr.grabmob.item.CarriedChestItem;
 import fr.grabmob.registry.ModDataComponents;
 import fr.grabmob.registry.ModItems;
+import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -16,21 +17,28 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
@@ -39,6 +47,7 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -428,6 +437,163 @@ public final class ChestGameTests {
         helper.assertTrue(plain.getHoverName().getContents() instanceof TranslatableContents key
                 && CarriedChestItem.KEY_NAME.equals(key.getKey()), "un coffre ordinaire garde le nom par défaut");
         helper.assertTrue(!ChestEvents.isCarrying(player), "rien en main");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void playerInventoryNbtRoundTrip(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CarriedChestData data = take(helper, player, SPOT);
+        player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
+        ListTag saved = player.getInventory().save(new ListTag());
+        Inventory reloaded = new Inventory(player);
+        reloaded.load(saved);
+        ItemStack back = reloaded.getItem(player.getInventory().selected);
+        helper.assertTrue(back.is(ModItems.CARRIED_CHEST.get()), "l'objet doit revenir à la même case après rechargement");
+        helper.assertTrue(data.equals(back.get(ModDataComponents.CARRIED_CHEST.get())),
+                "le contenu doit survivre à la sauvegarde NBT du joueur");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void deathDropIsRecoverableByAnotherPlayer(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer rescuer = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CarriedChestData data = take(helper, player, SPOT);
+        player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
+        player.die(helper.getLevel().damageSources().generic());
+        List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(8.0),
+                drop -> drop.getItem().is(ModItems.CARRIED_CHEST.get()));
+        helper.assertTrue(drops.size() == 1, "le coffre porté doit être lâché à la mort (" + drops.size() + ")");
+        ItemEntity drop = drops.get(0);
+        helper.runAfterDelay(3, () -> {
+            helper.assertTrue(drop.isInvulnerable() && drop.getAge() < 0 && !drop.isRemoved(), "l'objet lâché doit être protégé");
+            drop.setNoPickUpDelay();
+            drop.playerTouch(rescuer);
+            helper.assertTrue(drop.isRemoved(), "l'objet doit être ramassé");
+            boolean found = false;
+            for (ItemStack stack : rescuer.getInventory().items) {
+                found |= data.equals(stack.get(ModDataComponents.CARRIED_CHEST.get()));
+            }
+            helper.assertTrue(found, "le sauveteur doit récupérer le contenu intact");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void chestSurvivesDimensionChange(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CompoundTag before = contentsOf(helper, SPOT);
+        CarriedChestData data = take(helper, player, SPOT);
+        ServerLevel nether = helper.getLevel().getServer().getLevel(Level.NETHER);
+        helper.assertTrue(nether != null, "le Nether doit être chargé");
+        BlockPos ground = new BlockPos(8, 70, 8);
+        nether.getChunk(ground);
+        BlockState oldGround = nether.getBlockState(ground);
+        BlockState oldAbove = nether.getBlockState(ground.above());
+        nether.setBlock(ground, Blocks.STONE.defaultBlockState(), 3);
+        nether.setBlock(ground.above(), Blocks.AIR.defaultBlockState(), 3);
+        try {
+            helper.assertTrue(ChestCarrier.place(player, nether, ground, Direction.UP, data), "la pose dans le Nether aurait dû réussir");
+            helper.assertTrue(nether.getBlockEntity(ground.above()).saveWithoutMetadata(nether.registryAccess()).equals(before),
+                    "le contenu doit être identique dans l'autre dimension");
+        } finally {
+            nether.removeBlockEntity(ground.above());
+            nether.setBlock(ground.above(), oldAbove, 3);
+            nether.setBlock(ground, oldGround, 3);
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void runsOnDedicatedServerWithoutClientClasses(GameTestHelper helper) {
+        helper.assertTrue(FMLEnvironment.dist.isDedicatedServer(), "ce test doit tourner sur un serveur dédié");
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        ItemStack stack = carried(take(helper, player, SPOT));
+        helper.assertTrue(stack.getHoverName() != null, "le nom doit fonctionner sans classe client");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void vanillaSavedChestIsTakenWithoutMigration(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        helper.setBlock(SPOT, Blocks.CHEST.defaultBlockState());
+        ChestBlockEntity chest = (ChestBlockEntity) helper.getBlockEntity(SPOT);
+        CompoundTag saved = new CompoundTag();
+        ListTag items = new ListTag();
+        CompoundTag diamond = new CompoundTag();
+        diamond.putByte("Slot", (byte) 4);
+        diamond.putString("id", "minecraft:diamond");
+        diamond.putInt("count", 7);
+        items.add(diamond);
+        saved.put("Items", items);
+        chest.loadWithComponents(saved, helper.getLevel().registryAccess());
+        CarriedChestData data = take(helper, player, SPOT);
+        helper.assertTrue(data != null, "un coffre issu d'un monde existant doit pouvoir être pris");
+        helper.assertTrue(put(helper, player, TARGET.below(), data), "la pose aurait dû réussir");
+        ChestBlockEntity placed = (ChestBlockEntity) helper.getBlockEntity(TARGET);
+        helper.assertTrue(placed.getItem(4).is(Items.DIAMOND) && placed.getItem(4).getCount() == 7, "le contenu doit rester intact");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void repeatedChainsNeitherLoseNorDuplicate(GameTestHelper helper) {
+        ServerPlayer first = helper.makeMockServerPlayerInLevel();
+        ServerPlayer second = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CompoundTag before = contentsOf(helper, SPOT);
+        BlockPos current = SPOT;
+        for (int i = 0; i < 12; i++) {
+            ServerPlayer actor = i % 2 == 0 ? first : second;
+            CarriedChestData data = take(helper, actor, current);
+            helper.assertTrue(data != null, "prise " + i + " impossible");
+            helper.assertTrue(helper.getBlockState(current).isAir(), "le bloc doit disparaître à la prise " + i);
+            BlockPos next = new BlockPos(1 + (i * 3) % 7, 2, 1 + (i * 5) % 7);
+            if (next.equals(current)) {
+                next = next.east();
+            }
+            helper.assertTrue(put(helper, actor, next.below(), data), "pose " + i + " impossible");
+            current = next;
+        }
+        int chests = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(0, 2, 0, 9, 2, 9)) {
+            chests += helper.getBlockState(pos).is(Blocks.CHEST) ? 1 : 0;
+        }
+        helper.assertTrue(chests == 1, "un seul coffre doit exister (" + chests + ")");
+        helper.assertTrue(contentsOf(helper, current).equals(before), "le contenu doit rester identique après 12 allers-retours");
+        assertNothingDropped(helper);
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void bulkyChestFitsTheNetworkBudget(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ChestBlockEntity chest = filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        for (int slot = 0; slot < chest.getContainerSize(); slot++) {
+            List<ItemStack> inside = new ArrayList<>();
+            for (int i = 0; i < 27; i++) {
+                ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
+                sword.set(DataComponents.CUSTOM_NAME, Component.literal("Lame " + slot + "-" + i));
+                sword.set(DataComponents.LORE, new ItemLore(List.of(Component.literal("Forgée à la main"), Component.literal("Numéro " + i))));
+                inside.add(sword);
+            }
+            ItemStack box = new ItemStack(Items.SHULKER_BOX);
+            box.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(inside));
+            chest.setItem(slot, box);
+        }
+        ItemStack stack = carried(take(helper, player, SPOT));
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, stack);
+        int size = buffer.readableBytes();
+        System.out.println("GRABMOB_NETWORK_SIZE carriedChest bytes=" + size);
+        helper.assertTrue(size < 2_000_000, "coffre trop lourd pour le réseau : " + size);
+        ItemStack decoded = ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer);
+        helper.assertTrue(stack.get(ModDataComponents.CARRIED_CHEST.get()).equals(decoded.get(ModDataComponents.CARRIED_CHEST.get())),
+                "le décodage réseau doit redonner le même contenu");
         helper.succeed();
     }
 }
