@@ -1,48 +1,175 @@
 # Grab-Mob
 
-Mod **NeoForge 1.21.1** (Java 21) : capturez n'importe quel mob ou villageois à mains nues, transportez-le sous forme d'objet, puis relâchez-le ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre dans les deux mains**, contenu compris.
+Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre dans les deux mains**, contenu compris, et de le reposer à l'identique.
 
-## Utilisation
+![Une vache capturée et un coffre porté, vus à la première personne](docs/images/apercu.png)
 
-- **Capturer** : accroupi (Sneak) + clic droit, main vide, sur une créature, en mode Survie ou Créatif (pas Aventure ni Spectateur, ni en zone de spawn protégée). Elle disparaît et l'objet *Captured Entity* (`grabmob:captured_entity`) arrive dans votre main, même inventaire plein. Les animaux apprivoisés d'un autre joueur sont refusés.
-- **Relâcher** : clic droit avec l'objet sur un bloc. La créature réapparaît sur la face visée et l'objet est consommé (refus si l'espace est trop bas ou si un hostile est relâché en difficulté Pacifique : l'objet est alors gardé).
-- **Conservé** : points de vie, nom, variante (couleur, race...), âge (bébés), inventaire et équipement, métier, niveau et échanges des villageois, propriétaire des animaux apprivoisés, selle, etc. (tout le NBT de l'entité).
-- **Rendu** : l'objet affiche le modèle 3D exact de la créature capturée (GUI, main, sol, cadre), avec une échelle adaptée à sa taille.
-- Les joueurs, les entités non vivantes (bateaux, wagonnets, cadres, tableaux, objets au sol...) et le Wither, le dragon, le support d'armure et le nœud de laisse ne sont pas capturables : voir `data/grabmob/tags/entity_type/blacklist.json`.
+## Sommaire
 
-### Porter un coffre
+- [Fonctionnalités](#fonctionnalités)
+- [Prérequis](#prérequis)
+- [Installation](#installation)
+- [Utilisation](#utilisation)
+- [Configuration](#configuration)
+- [Structure du projet](#structure-du-projet)
+- [Compiler et développer](#compiler-et-développer)
+- [Tests](#tests)
+- [Contribuer](#contribuer)
+- [Licence](#licence)
 
-- **Prendre** : accroupi (Sneak) + clic droit, **les deux mains vides**, sur un coffre ou un coffre piégé (tag `grabmob:carryable_chests`). Le coffre disparaît et l'objet *Carried Chest* (`grabmob:carried_chest`) arrive en main : tout le contenu, le nom, l'orientation et la table de butin non ouverte sont conservés à l'identique. Les coffres déjà posés se prennent sans migration.
-- **Porter** : le coffre est tenu à deux bras (1re et 3e personne, visible des autres joueurs). Tant qu'on le porte, la main secondaire est bloquée (échange, pose, objets rangés dans l'inventaire).
-- **Poser** : clic droit sur un bloc. Le coffre réapparaît avec son contenu intact (refus si la place est prise ou protégée : l'objet est gardé).
-- **Refus** (avec message) : coffre verrouillé, zone protégée, main secondaire occupée, coffre contenant un coffre porté (même caché dans un shulker), contenu de plus de 1 Mio. En mode Aventure ou Spectateur, ou avec la main principale occupée, le geste est ignoré. Les joueurs qui ouvrent le coffre au moment de la prise voient leur menu fermé proprement.
-- **Coffre double** : seule la moitié visée est prise ; l'autre moitié redevient un coffre simple.
-- **Perte du joueur** : l'objet lâché ou laissé à la mort est invulnérable aux dégâts et ne disparaît pas avec le temps (sauf chute dans le vide).
+## Fonctionnalités
+
+**Capture de créatures** (objet `grabmob:captured_entity`)
+- Capture par un geste simple : accroupi + clic droit, main vide, sur la créature.
+- Conservation de tout l'état de l'entité (NBT) : points de vie, nom, variante (couleur, race…), âge, inventaire et équipement, métier, niveau et échanges des villageois, propriétaire des animaux apprivoisés, selle…
+- Relâche sur n'importe quel bloc, avec refus propres (espace trop bas, hostile en difficulté Pacifique) qui gardent l'objet.
+- Rendu 3D exact de la créature capturée (inventaire, main, sol, cadre), à une échelle adaptée à sa taille, et bras du joueur visible qui la tient.
+- Liste noire modifiable (joueurs, dragon, Wither, bateaux, wagonnets, cadres, tableaux, support d'armure, nœud de laisse).
+
+**Coffre porté** (objet `grabmob:carried_chest`)
+- Prise d'un coffre ou d'un coffre piégé, contenu, nom, orientation et table de butin non ouverte conservés ; les coffres déjà posés se prennent sans migration.
+- Coffre tenu à deux bras, en première et troisième personne, visible des autres joueurs ; main secondaire bloquée pendant le port.
+- Objet lâché ou laissé à la mort invulnérable et sans disparition.
+- Pose et prise transactionnelles : rien n'est perdu ni dupliqué en cas d'échec.
+
+**Général** : textes en anglais et en français, configuration commune client/serveur, protections respectées (zone de spawn, coffre verrouillé, modes Aventure et Spectateur).
+
+## Prérequis
+
+| Pour… | Il faut |
+|---|---|
+| Jouer | Minecraft Java Edition **1.21.1** et **NeoForge 21.1.x** (21.1.265 ou plus récent), Java 21 |
+| Compiler | **JDK 21** et accès à Internet (Gradle 8.14.3 est téléchargé par le script `gradlew`) |
+| Lancer le jeu de développement | Compte Minecraft non requis : le client de développement démarre en mode hors ligne |
+
+Le mod est requis des deux côtés : le client pour l'affichage, le serveur pour la logique.
 
 ## Installation
 
+### Utiliser le mod
+
 1. Installer NeoForge 21.1.x pour Minecraft 1.21.1.
-2. Copier `deliverable/grabmob-1.0.0.jar` dans le dossier `mods/` du client **et** du serveur (le rendu est côté client, la logique côté serveur).
+2. Copier `deliverable/grabmob-1.0.0.jar` dans le dossier `mods/` du client **et** du serveur.
+3. Lancer le jeu ou le serveur avec le profil NeoForge. Le fichier de configuration `config/grabmob-common.toml` est créé au premier démarrage.
 
-## Configuration
+### Compiler le jar depuis les sources
 
-Fichier `config/grabmob-common.toml` :
+Depuis la racine du projet (le dossier qui contient `build.gradle`) :
 
-- `allowHostile` (défaut `true`) : autorise la capture de monstres hostiles.
-- `carryChestsEnabled` (défaut `true`) : active le port de coffres.
-- `extraBlacklist` (défaut vide) : identifiants d'entités supplémentaires interdits, par exemple `["minecraft:warden"]`.
-
-## Compiler
-
+```bash
+./gradlew build
 ```
-./gradlew build          # jar dans build/libs/
-./gradlew test           # tests unitaires
-./gradlew runGameTestServer
+
+Sous Windows (PowerShell ou cmd), utiliser `gradlew.bat build`. Le jar est produit dans `build/libs/grabmob-1.0.0.jar`.
+
+Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à défaut, Gradle télécharge lui-même un JDK 21 (greffon *foojay*).
+
+## Utilisation
+
+### Capturer et relâcher une créature
+
+| Action | Geste |
+|---|---|
+| Capturer | Accroupi (Sneak) + clic droit, **main vide**, sur la créature |
+| Relâcher | Clic droit avec l'objet sur un bloc |
+
+- La capture fonctionne en mode Survie ou Créatif, même inventaire plein (l'objet arrive dans la main vide). Elle est ignorée en Aventure et Spectateur, en zone de spawn protégée, et refusée pour les animaux apprivoisés d'un autre joueur.
+- La créature réapparaît sur la face visée du bloc ; l'objet est consommé.
+- L'infobulle de l'objet indique la créature, son nom et sa vie (par exemple « Captured Entity: Cow »).
+
+### Porter un coffre
+
+| Action | Geste |
+|---|---|
+| Prendre | Accroupi + clic droit, **les deux mains vides**, sur un coffre ou un coffre piégé |
+| Poser | Clic droit avec le coffre porté sur un bloc |
+
+- Coffre double : seule la moitié visée est prise, l'autre devient un coffre simple.
+- Refus avec message : coffre verrouillé, zone protégée, main secondaire occupée, coffre contenant déjà un coffre porté (même caché dans un shulker), contenu de plus de 1 Mio.
+- La ligne de commande permet de s'en procurer un exemplaire vide pour essayer : `/give @s grabmob:carried_chest`.
+
+### Essayer le mod en développement
+
+```bash
 ./gradlew runClient
 ```
 
-JDK 21 requis. Les tests de jeu (GameTests) sont dans `src/gametest`, hors du jar.
+Créer un monde, puis par exemple :
+
+```
+/gamemode survival
+/summon minecraft:villager ~ ~ ~
+```
+
+Se mettre accroupi et faire un clic droit sur le villageois avec la main vide : il disparaît et l'objet apparaît dans la main. Un clic droit sur le sol le relâche avec son métier, son niveau et ses échanges. Le guide `TEST_GUIDE.md` détaille une liste complète de vérifications manuelles.
+
+Pour un serveur de développement : `./gradlew runServer` (le serveur demande d'accepter l'EULA de Minecraft en passant `eula=true` dans `run/eula.txt`).
+
+## Configuration
+
+Fichier `config/grabmob-common.toml` (créé au premier lancement, dans `run/config/` en développement) :
+
+| Option | Défaut | Rôle |
+|---|---|---|
+| `allowHostile` | `true` | Autorise la capture de monstres hostiles (zombies, creepers…). |
+| `carryChestsEnabled` | `true` | Active la prise et la pose de coffres. À `false`, le geste ouvre le coffre normalement. |
+| `extraBlacklist` | `[]` | Identifiants d'entités supplémentaires interdits, par exemple `["minecraft:warden"]`. |
+
+La liste noire de base est une étiquette de données modifiable par datapack : `data/grabmob/tags/entity_type/blacklist.json`. Les blocs portables sont dans `data/grabmob/tags/block/carryable_chests.json` (`minecraft:chest` et `minecraft:trapped_chest`).
+
+## Structure du projet
+
+```
+build.gradle, gradle.properties   Construction (ModDevGradle) et versions du mod
+src/main/java/fr/grabmob/
+  GrabMob.java                    Point d'entrée du mod
+  capture/                        Capture et relâche des créatures
+  chest/                          Prise et pose des coffres
+  config/                         Options de configuration
+  data/                           Composants de données des deux objets
+  event/                          Gestionnaires d'événements (clics, main secondaire…)
+  item/                           Objets Captured Entity et Carried Chest
+  registry/                       Enregistrement des objets et des composants
+  client/                         Rendu (modèles, bras, échelle) — côté client seulement
+src/main/resources/               Langues, modèles, étiquettes, descripteur du mod
+src/test/                         Tests unitaires JUnit 5
+src/gametest/                     Tests de jeu (GameTests), hors du jar
+src/dev/                          Outil de captures d'écran du client de développement
+tools/                            Générateur de la structure vide des GameTests
+deliverable/                      Jar prêt à installer
+docs/                             Crédits et images du README
+TEST_GUIDE.md                     Guide de test manuel
+```
+
+## Compiler et développer
+
+| Commande | Effet |
+|---|---|
+| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/grabmob-1.0.0.jar` |
+| `./gradlew runClient` | Lance un client Minecraft de développement avec le mod |
+| `./gradlew runServer` | Lance un serveur de développement |
+| `./gradlew runScreenshot` | Lance le client, prend des captures dans `build/screenshots/` |
+
+La version du mod, celle de Minecraft et celle de NeoForge sont dans `gradle.properties`.
+
+## Tests
+
+```bash
+./gradlew test               # tests unitaires JUnit 5 (src/test)
+./gradlew runGameTestServer  # tests de jeu (src/gametest), code de sortie 1 si l'un échoue
+```
+
+Les tests de jeu simulent des joueurs dans un monde réel : capture, relâche, villageois, coffre rempli, sauvegarde et rechargement, mort et récupération, changement de dimension, serveur dédié, cas limites.
+
+## Contribuer
+
+1. Créer une branche à partir de `main`.
+2. Faire un changement ciblé, accompagné d'un test (JUnit pour la logique pure, GameTest pour le comportement en jeu).
+3. Vérifier que `./gradlew build` et `./gradlew runGameTestServer` réussissent.
+4. Ouvrir une demande de fusion en décrivant le comportement modifié et la manière de le tester.
+
+Les messages de commit sont courts, à l'impératif, et décrivent ce que le commit apporte. Tout contenu ajouté doit être original ou sous licence libre, avec sa source notée dans `docs/CREDITS.md`.
 
 ## Licence
 
-MIT. Aucun asset tiers : voir `docs/CREDITS.md`.
+[MIT](LICENSE). Aucune ressource tierce : voir `docs/CREDITS.md`.
