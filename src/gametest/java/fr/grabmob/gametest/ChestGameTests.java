@@ -466,7 +466,7 @@ public final class ChestGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
         player.die(helper.getLevel().damageSources().generic());
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(8.0),
-                drop -> drop.getItem().is(ModItems.CARRIED_CHEST.get()));
+                drop -> drop.tickCount < 20 && drop.getItem().is(ModItems.CARRIED_CHEST.get()));
         helper.assertTrue(drops.size() == 1, "le coffre porté doit être lâché à la mort (" + drops.size() + ")");
         ItemEntity drop = drops.get(0);
         helper.runAfterDelay(3, () -> {
