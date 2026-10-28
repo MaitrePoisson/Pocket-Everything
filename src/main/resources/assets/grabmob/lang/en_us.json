@@ -1,0 +1,7 @@
+{
+  "item.grabmob.captured_entity": "Captured Entity",
+  "item.grabmob.captured_entity.named": "Captured Entity: %s",
+  "message.grabmob.cannot_capture": "This creature cannot be captured.",
+  "tooltip.grabmob.health": "Health: %s / %s",
+  "tooltip.grabmob.profession": "Profession: %s"
+}

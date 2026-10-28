@@ -14,5 +14,6 @@ public final class GameTestRegistration {
     @SubscribeEvent
     public static void register(RegisterGameTestsEvent event) {
         event.register(CaptureGameTests.class);
+        event.register(ItemGameTests.class);
     }
 }
