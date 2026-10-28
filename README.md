@@ -60,7 +60,7 @@ Depuis la racine du projet (le dossier qui contient `build.gradle`) :
 ./gradlew build
 ```
 
-Sous Windows (PowerShell ou cmd), utiliser `gradlew.bat build`. Le jar est produit dans `build/libs/grabmob-1.0.0.jar`.
+Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/grabmob-1.0.0.jar`.
 
 Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à défaut, Gradle télécharge lui-même un JDK 21 (greffon *foojay*).
 
@@ -75,7 +75,7 @@ Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à d
 
 - La capture fonctionne en mode Survie ou Créatif, même inventaire plein (l'objet arrive dans la main vide). Elle est ignorée en Aventure et Spectateur, en zone de spawn protégée, et refusée pour les animaux apprivoisés d'un autre joueur.
 - La créature réapparaît sur la face visée du bloc ; l'objet est consommé.
-- L'infobulle de l'objet indique la créature, son nom et sa vie (par exemple « Captured Entity: Cow »).
+- L'infobulle de l'objet indique la créature, son nom et sa vie (par exemple « Captured Entity: Cow » en anglais, « Entité capturée : Vache » en français).
 
 ### Porter un coffre
 
@@ -103,7 +103,7 @@ Créer un monde, puis par exemple :
 
 Se mettre accroupi et faire un clic droit sur le villageois avec la main vide : il disparaît et l'objet apparaît dans la main. Un clic droit sur le sol le relâche avec son métier, son niveau et ses échanges. Le guide `TEST_GUIDE.md` détaille une liste complète de vérifications manuelles.
 
-Pour un serveur de développement : `./gradlew runServer` (le serveur demande d'accepter l'EULA de Minecraft en passant `eula=true` dans `run/eula.txt`).
+Pour un serveur de développement : `./gradlew runServer` (le serveur ne s'arrête pas seul : taper `stop` dans sa console).
 
 ## Configuration
 
