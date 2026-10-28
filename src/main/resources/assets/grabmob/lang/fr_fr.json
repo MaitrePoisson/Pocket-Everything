@@ -2,6 +2,7 @@
   "item.grabmob.captured_entity": "Entité capturée",
   "item.grabmob.captured_entity.named": "Entité capturée : %s",
   "message.grabmob.cannot_capture": "Cette créature ne peut pas être capturée.",
+  "message.grabmob.cannot_release": "Cette créature ne peut pas être relâchée ici.",
   "tooltip.grabmob.health": "Vie : %s / %s",
   "tooltip.grabmob.profession": "Métier : %s"
 }

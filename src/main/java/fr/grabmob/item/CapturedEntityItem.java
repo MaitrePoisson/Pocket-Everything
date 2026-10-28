@@ -25,6 +25,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class CapturedEntityItem extends Item {
 
+    public static final String KEY_CANNOT_RELEASE = "message.grabmob.cannot_release";
     public static final String KEY_NAME = "item.grabmob.captured_entity";
     public static final String KEY_NAMED = "item.grabmob.captured_entity.named";
     public static final String KEY_HEALTH = "tooltip.grabmob.health";
@@ -50,6 +51,9 @@ public class CapturedEntityItem extends Item {
         float yaw = player != null ? player.getYRot() + 180.0F : context.getRotation();
         Optional<Entity> released = EntityCapturer.release(level, data, position, yaw);
         if (released.isEmpty()) {
+            if (player != null) {
+                player.displayClientMessage(Component.translatable(KEY_CANNOT_RELEASE), true);
+            }
             return InteractionResult.FAIL;
         }
         stack.shrink(1);
