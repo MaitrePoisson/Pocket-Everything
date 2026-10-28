@@ -14,6 +14,10 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
+sourceSets {
+    gametest
+}
+
 repositories {
     mavenLocal()
 }
@@ -28,6 +32,7 @@ neoForge {
     mods {
         grabmob {
             sourceSet sourceSets.main
+            sourceSet sourceSets.gametest
         }
     }
 
@@ -46,10 +51,17 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
     }
 }
 
+neoForge.addModdingDependenciesTo(sourceSets.gametest)
+
 dependencies {
+    gametestImplementation sourceSets.main.output
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
