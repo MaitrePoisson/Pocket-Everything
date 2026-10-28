@@ -1,0 +1,17 @@
+{
+  "item.pocket_everything.captured_entity": "Captured Entity",
+  "item.pocket_everything.captured_entity.named": "Captured Entity: %s",
+  "item.pocket_everything.carried_chest": "Carried Chest",
+  "item.pocket_everything.carried_chest.named": "Carried Chest: %s",
+  "message.pocket_everything.cannot_capture": "This creature cannot be captured.",
+  "message.pocket_everything.cannot_release": "This creature cannot be released here.",
+  "message.pocket_everything.cannot_carry_locked": "You cannot take a locked chest.",
+  "message.pocket_everything.cannot_carry_protected": "You cannot take this chest here.",
+  "message.pocket_everything.cannot_carry_hands": "Both hands must be free to take a chest.",
+  "message.pocket_everything.cannot_carry_nested": "This chest holds a carried chest and cannot be taken.",
+  "message.pocket_everything.cannot_carry_too_big": "You cannot take this chest: it holds too much data.",
+  "message.pocket_everything.cannot_place_chest": "The chest cannot be placed here.",
+  "tooltip.pocket_everything.chest_contents": "Contents: %s stacks",
+  "tooltip.pocket_everything.health": "Health: %s / %s",
+  "tooltip.pocket_everything.profession": "Profession: %s"
+}

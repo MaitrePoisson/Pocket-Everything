@@ -7,7 +7,7 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = mod_id
+    archivesName = 'pocket-everything'
 }
 
 java {
@@ -31,7 +31,7 @@ neoForge {
     }
 
     mods {
-        grabmob {
+        pocket_everything {
             sourceSet sourceSets.main
             sourceSet sourceSets.gametest
             sourceSet sourceSets.dev
@@ -40,7 +40,7 @@ neoForge {
 
     unitTest {
         enable()
-        testedMod = mods.grabmob
+        testedMod = mods.pocket_everything
     }
 
     runs {
@@ -56,7 +56,7 @@ neoForge {
         screenshot {
             client()
             gameDirectory = file("runs/screenshot")
-            systemProperty "grabmob.screenshot.dir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath
+            systemProperty "pocket_everything.screenshot.dir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath
             programArguments = ["--width", "960", "--height", "540"]
         }
         gameTestServer {

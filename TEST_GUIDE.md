@@ -1,15 +1,15 @@
-# Guide de test — Grab-Mob
+# Guide de test — Pocket-Everything
 
 ## Lancer
 
 - **Client de développement** : `./gradlew runClient` (JDK 21). Créer un monde créatif ou survie.
-- **Installation réelle** : NeoForge 21.1.x pour Minecraft 1.21.1, puis `deliverable/grabmob-1.0.0.jar` dans `mods/`.
+- **Installation réelle** : NeoForge 21.1.x pour Minecraft 1.21.1, puis `deliverable/pocket-everything-1.0.0.jar` dans `mods/`.
 - **Serveur dédié** : même jar dans `mods/` du serveur (`./gradlew runServer` en développement).
 - **Vérification automatique** : `bash .athanor/check.sh` (build, 26 tests JUnit, 73 GameTests, captures d'écran, copie du jar dans `deliverable/`).
 
 ## Commandes de jeu utiles
 
-`/give @s grabmob:carried_chest` donne un coffre porté vide (inoffensif). `/give @s grabmob:captured_entity` donne un objet vide (sans créature : inoffensif). `/summon minecraft:villager ~ ~ ~` et `/gamemode survival|creative` aident aux tests.
+`/give @s pocket_everything:carried_chest` donne un coffre porté vide (inoffensif). `/give @s pocket_everything:captured_entity` donne un objet vide (sans créature : inoffensif). `/summon minecraft:villager ~ ~ ~` et `/gamemode survival|creative` aident aux tests.
 
 ## Contrôles
 
@@ -74,7 +74,7 @@
 - [ ] Non-régression : capture et relâche d'une créature, bras visible, inchangés.
 
 ### Configuration
-- [ ] `config/grabmob-common.toml` : `allowHostile=false` interdit zombies, creepers... ; `extraBlacklist=["minecraft:cow"]` interdit les vaches.
+- [ ] `config/pocket_everything-common.toml` : `allowHostile=false` interdit zombies, creepers... ; `extraBlacklist=["minecraft:cow"]` interdit les vaches.
 
 ### Serveur dédié et multijoueur
 - [ ] Le serveur démarre sans erreur avec le jar. Un client avec le mod capture/relâche, et un second joueur voit la créature réapparaître.
@@ -82,6 +82,6 @@
 - [ ] Villageois à beaucoup d'échanges (60 offres ≈ 11 Ko) : la capture ne déconnecte personne.
 
 ### Logo
-- [ ] Écran « Mods » de NeoForge : Grab-Mob affiche le logo (pixel net, non flou) à côté de son nom et de sa description.
-- [ ] Écran des packs de ressources : l'icône du pack de Grab-Mob est le logo.
+- [ ] Écran « Mods » de NeoForge : Pocket-Everything affiche le logo (pixel net, non flou) à côté de son nom et de sa description.
+- [ ] Écran des packs de ressources : l'icône du pack de Pocket-Everything est le logo.
 - [ ] README sur GitHub : logo centré en tête, sans image cassée.

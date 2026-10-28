@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/images/logo.png" alt="Logo du projet Grab-Mob : un villageois, un cochon et un coffre posés sur une main" width="200">
+  <img src="docs/images/logo.png" alt="Logo du projet Pocket-Everything : un villageois, un cochon et un coffre posés sur une main" width="200">
 </p>
 
-# Grab-Mob
+# Pocket-Everything
 
 Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre dans les deux mains**, contenu compris, et de le reposer à l'identique.
 
@@ -23,14 +23,14 @@ Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle cré
 
 ## Fonctionnalités
 
-**Capture de créatures** (objet `grabmob:captured_entity`)
+**Capture de créatures** (objet `pocket_everything:captured_entity`)
 - Capture par un geste simple : accroupi + clic droit, main vide, sur la créature.
 - Conservation de tout l'état de l'entité (NBT) : points de vie, nom, variante (couleur, race…), âge, inventaire et équipement, métier, niveau et échanges des villageois, propriétaire des animaux apprivoisés, selle…
 - Relâche sur n'importe quel bloc, avec refus propres (espace trop bas, hostile en difficulté Pacifique) qui gardent l'objet.
 - Rendu 3D exact de la créature capturée (inventaire, main, sol, cadre), à une échelle adaptée à sa taille, et bras du joueur visible qui la tient.
 - Liste noire modifiable (joueurs, dragon, Wither, bateaux, wagonnets, cadres, tableaux, support d'armure, nœud de laisse).
 
-**Coffre porté** (objet `grabmob:carried_chest`)
+**Coffre porté** (objet `pocket_everything:carried_chest`)
 - Prise d'un coffre ou d'un coffre piégé, contenu, nom, orientation et table de butin non ouverte conservés ; les coffres déjà posés se prennent sans migration.
 - Coffre tenu à deux bras, en première et troisième personne, visible des autres joueurs ; main secondaire bloquée pendant le port.
 - Objet lâché ou laissé à la mort invulnérable et sans disparition.
@@ -53,8 +53,8 @@ Le mod est requis des deux côtés : le client pour l'affichage, le serveur pour
 ### Utiliser le mod
 
 1. Installer NeoForge 21.1.x pour Minecraft 1.21.1.
-2. Copier `deliverable/grabmob-1.0.0.jar` dans le dossier `mods/` du client **et** du serveur.
-3. Lancer le jeu ou le serveur avec le profil NeoForge. Le fichier de configuration `config/grabmob-common.toml` est créé au premier démarrage.
+2. Copier `deliverable/pocket-everything-1.0.0.jar` dans le dossier `mods/` du client **et** du serveur.
+3. Lancer le jeu ou le serveur avec le profil NeoForge. Le fichier de configuration `config/pocket_everything-common.toml` est créé au premier démarrage.
 
 ### Compiler le jar depuis les sources
 
@@ -64,7 +64,7 @@ Depuis la racine du projet (le dossier qui contient `build.gradle`) :
 ./gradlew build
 ```
 
-Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/grabmob-1.0.0.jar`.
+Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/pocket-everything-1.0.0.jar`.
 
 Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à défaut, Gradle télécharge lui-même un JDK 21 (greffon *foojay*).
 
@@ -90,7 +90,7 @@ Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à d
 
 - Coffre double : seule la moitié visée est prise, l'autre devient un coffre simple.
 - Refus avec message : coffre verrouillé, zone protégée, main secondaire occupée, coffre contenant déjà un coffre porté (même caché dans un shulker), contenu de plus de 1 Mio.
-- La ligne de commande permet de s'en procurer un exemplaire vide pour essayer : `/give @s grabmob:carried_chest`.
+- La ligne de commande permet de s'en procurer un exemplaire vide pour essayer : `/give @s pocket_everything:carried_chest`.
 
 ### Essayer le mod en développement
 
@@ -111,7 +111,7 @@ Pour un serveur de développement : `./gradlew runServer` (le serveur ne s'arrê
 
 ## Configuration
 
-Fichier `config/grabmob-common.toml` (créé au premier lancement, dans `run/config/` en développement) :
+Fichier `config/pocket_everything-common.toml` (créé au premier lancement, dans `run/config/` en développement) :
 
 | Option | Défaut | Rôle |
 |---|---|---|
@@ -119,14 +119,14 @@ Fichier `config/grabmob-common.toml` (créé au premier lancement, dans `run/con
 | `carryChestsEnabled` | `true` | Active la prise et la pose de coffres. À `false`, le geste ouvre le coffre normalement. |
 | `extraBlacklist` | `[]` | Identifiants d'entités supplémentaires interdits, par exemple `["minecraft:warden"]`. |
 
-La liste noire de base est une étiquette de données modifiable par datapack : `data/grabmob/tags/entity_type/blacklist.json`. Les blocs portables sont dans `data/grabmob/tags/block/carryable_chests.json` (`minecraft:chest` et `minecraft:trapped_chest`).
+La liste noire de base est une étiquette de données modifiable par datapack : `data/pocket_everything/tags/entity_type/blacklist.json`. Les blocs portables sont dans `data/pocket_everything/tags/block/carryable_chests.json` (`minecraft:chest` et `minecraft:trapped_chest`).
 
 ## Structure du projet
 
 ```
 build.gradle, gradle.properties   Construction (ModDevGradle) et versions du mod
-src/main/java/fr/grabmob/
-  GrabMob.java                    Point d'entrée du mod
+src/main/java/fr/pocketeverything/
+  PocketEverything.java                    Point d'entrée du mod
   capture/                        Capture et relâche des créatures
   chest/                          Prise et pose des coffres
   config/                         Options de configuration
@@ -149,7 +149,7 @@ TEST_GUIDE.md                     Guide de test manuel
 
 | Commande | Effet |
 |---|---|
-| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/grabmob-1.0.0.jar` |
+| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/pocket-everything-1.0.0.jar` |
 | `./gradlew runClient` | Lance un client Minecraft de développement avec le mod |
 | `./gradlew runServer` | Lance un serveur de développement |
 | `./gradlew runScreenshot` | Lance le client, prend des captures dans `build/screenshots/` |
