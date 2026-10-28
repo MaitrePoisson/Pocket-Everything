@@ -19,7 +19,11 @@ class LangKeysTest {
     private static final Set<String> EXPECTED = Set.of(
             "item.grabmob.captured_entity",
             "item.grabmob.captured_entity.named",
+            "item.grabmob.carried_chest",
             "message.grabmob.cannot_capture",
+            "message.grabmob.cannot_carry_locked",
+            "message.grabmob.cannot_carry_protected",
+            "message.grabmob.cannot_place_chest",
             "message.grabmob.cannot_release",
             "tooltip.grabmob.health",
             "tooltip.grabmob.profession");

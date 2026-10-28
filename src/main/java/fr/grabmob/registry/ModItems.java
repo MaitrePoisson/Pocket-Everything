@@ -2,6 +2,7 @@ package fr.grabmob.registry;
 
 import fr.grabmob.GrabMob;
 import fr.grabmob.item.CapturedEntityItem;
+import fr.grabmob.item.CarriedChestItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -15,6 +16,11 @@ public final class ModItems {
             "captured_entity",
             CapturedEntityItem::new,
             new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+
+    public static final DeferredItem<CarriedChestItem> CARRIED_CHEST = ITEMS.registerItem(
+            "carried_chest",
+            CarriedChestItem::new,
+            new Item.Properties().stacksTo(1).fireResistant());
 
     private ModItems() {
     }
