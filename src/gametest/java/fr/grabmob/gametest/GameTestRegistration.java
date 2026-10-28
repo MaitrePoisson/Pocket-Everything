@@ -15,5 +15,6 @@ public final class GameTestRegistration {
     public static void register(RegisterGameTestsEvent event) {
         event.register(CaptureGameTests.class);
         event.register(ItemGameTests.class);
+        event.register(EventGameTests.class);
     }
 }
