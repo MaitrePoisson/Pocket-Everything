@@ -5,11 +5,11 @@
 - **Client de développement** : `./gradlew runClient` (JDK 21). Créer un monde créatif ou survie.
 - **Installation réelle** : NeoForge 21.1.x pour Minecraft 1.21.1, puis `deliverable/grabmob-1.0.0.jar` dans `mods/`.
 - **Serveur dédié** : même jar dans `mods/` du serveur (`./gradlew runServer` en développement).
-- **Vérification automatique** : `bash .athanor/check.sh` (build, 22 tests JUnit, 38 GameTests, captures d'écran, copie du jar dans `deliverable/`).
+- **Vérification automatique** : `bash .athanor/check.sh` (build, 26 tests JUnit, 73 GameTests, captures d'écran, copie du jar dans `deliverable/`).
 
 ## Commandes de jeu utiles
 
-`/give @s grabmob:captured_entity` donne un objet vide (sans créature : inoffensif). `/summon minecraft:villager ~ ~ ~` et `/gamemode survival|creative` aident aux tests.
+`/give @s grabmob:carried_chest` donne un coffre porté vide (inoffensif). `/give @s grabmob:captured_entity` donne un objet vide (sans créature : inoffensif). `/summon minecraft:villager ~ ~ ~` et `/gamemode survival|creative` aident aux tests.
 
 ## Contrôles
 
@@ -17,6 +17,8 @@
 |---|---|
 | Capturer | Sneak + clic droit, main vide, sur la créature |
 | Relâcher | Clic droit avec l'objet sur un bloc |
+| Prendre un coffre | Sneak + clic droit, deux mains vides, sur un coffre |
+| Poser un coffre | Clic droit avec le coffre porté sur un bloc |
 
 ## À tester à la main
 
@@ -55,6 +57,21 @@
 - [ ] Main secondaire (objet en main gauche) et joueur gaucher (Options > Compétences > Bras principal) : le bon bras apparaît, à la bonne place.
 - [ ] Troisième personne (F5, de face et de dos) : le bras du modèle du joueur tient l'objet.
 - [ ] Main vide, ou autre objet en main : rendu inchangé par rapport à Minecraft.
+
+### Coffre porté
+- [ ] Remplir un coffre (piles variées, objet nommé, shulker), sneak + clic droit mains vides : il disparaît, rien au sol, le coffre apparaît dans la main.
+- [ ] Première personne : les deux bras tiennent le coffre devant la poitrine, sans décalage à l'équipement, en marchant et en bougeant la caméra. Joueur gaucher : identique.
+- [ ] Troisième personne (F5, face et dos) et vu par un second joueur : pose à deux bras autour du coffre.
+- [ ] Poser le coffre ailleurs : contenu identique (quantités, emplacements, nom). Coffre piégé et orienté (nord/sud/est/ouest) idem.
+- [ ] Porter : main secondaire bloquée (touche d'échange F sans effet, rien de posable ou utilisable à gauche).
+- [ ] Une main occupée : message « Vos deux mains doivent être libres pour prendre un coffre » (main secondaire occupée) et le coffre ne s'ouvre pas ; main principale occupée : le geste est ignoré.
+- [ ] Coffre double : seule la moitié visée est prise, l'autre reste un coffre simple.
+- [ ] Un second joueur ouvre le coffre pendant la prise : son menu se ferme.
+- [ ] Coffre verrouillé ou zone protégée : refus avec message. Mode Aventure : pas de prise.
+- [ ] Lâcher le coffre (Q) ou mourir avec : l'objet ne brûle pas, ne se détruit pas, ne disparaît pas ; le ramasser et le poser retrouve le contenu.
+- [ ] Quitter et recharger le monde (ou se reconnecter) en portant le coffre : contenu intact. Changer de dimension : idem.
+- [ ] `carryChestsEnabled=false` dans la config : le geste ouvre le coffre normalement.
+- [ ] Non-régression : capture et relâche d'une créature, bras visible, inchangés.
 
 ### Configuration
 - [ ] `config/grabmob-common.toml` : `allowHostile=false` interdit zombies, creepers... ; `extraBlacklist=["minecraft:cow"]` interdit les vaches.
