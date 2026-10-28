@@ -70,6 +70,9 @@ public final class CapturedEntityRenderer extends BlockEntityWithoutLevelRendere
         }
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         DisplayPlacement placement = placementFor(context);
+        if (context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
+            HeldArmRenderer.render(poseStack, buffer, packedLight, context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND);
+        }
         boolean gui = context == ItemDisplayContext.GUI;
         Quaternionf previousOrientation = gui ? new Quaternionf(dispatcher.cameraOrientation()) : null;
         poseStack.pushPose();
