@@ -201,6 +201,24 @@ public final class ScreenshotRunner {
             mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
             holdInHand(mc, STACKS.get(4));
         }));
+        SHOTS.add(new Shot("third_left_chest", () -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            holdInHand(mc, STACKS.get(4));
+            mc.options.mainHand().set(HumanoidArm.LEFT);
+        }));
+        SHOTS.add(new Shot("hand_left_chest", () -> {
+            mc.options.setCameraType(CameraType.FIRST_PERSON);
+            holdInHand(mc, STACKS.get(4));
+            mc.options.mainHand().set(HumanoidArm.LEFT);
+        }));
+        SHOTS.add(new Shot("hand_left_chest_late", () -> {
+        }));
+        SHOTS.add(new Shot("hand_off_chest", () -> {
+            mc.options.setCameraType(CameraType.FIRST_PERSON);
+            clearHand(mc);
+            mc.options.mainHand().set(HumanoidArm.RIGHT);
+            mc.player.getInventory().offhand.set(0, STACKS.get(4).copy());
+        }));
         SHOTS.add(new Shot("third_back_chest", () -> {
             mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
             holdInHand(mc, STACKS.get(5));
@@ -226,11 +244,13 @@ public final class ScreenshotRunner {
         SHOTS.add(new Shot("hand_off_golem", () -> {
             mc.options.setCameraType(CameraType.FIRST_PERSON);
             clearHand(mc);
+            mc.options.mainHand().set(HumanoidArm.RIGHT);
             mc.player.getInventory().offhand.set(0, STACKS.get(2).copy());
         }));
         SHOTS.add(new Shot("third_off_golem", () -> {
             mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
             clearHand(mc);
+            mc.options.mainHand().set(HumanoidArm.RIGHT);
             mc.player.getInventory().offhand.set(0, STACKS.get(2).copy());
         }));
         SHOTS.add(new Shot("ground", () -> {

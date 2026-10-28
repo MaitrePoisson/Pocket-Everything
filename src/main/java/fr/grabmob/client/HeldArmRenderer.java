@@ -25,6 +25,11 @@ public final class HeldArmRenderer {
     }
 
     public static void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, boolean leftHand) {
+        render(poseStack, buffer, packedLight, leftHand, 0.0F);
+    }
+
+    public static void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, boolean leftHand,
+            float spread) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null || player.isInvisible()) {
             return;
@@ -36,7 +41,7 @@ public final class HeldArmRenderer {
         poseStack.pushPose();
         try {
             poseStack.translate(HAND_CENTER, HAND_CENTER, HAND_CENTER);
-            poseStack.translate(side * 0.08F, -0.08F, 0.0F);
+            poseStack.translate(side * (0.08F + spread), -0.08F, 0.0F);
             poseStack.mulPose(YAW_IN[index]);
             poseStack.translate(side * -1.0F, 3.6F, 3.5F);
             poseStack.mulPose(ROLL[index]);
