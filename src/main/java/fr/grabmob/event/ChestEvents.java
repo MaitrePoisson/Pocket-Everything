@@ -92,7 +92,8 @@ public final class ChestEvents {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || !isCarrying(player) || player.getOffhandItem().isEmpty()) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || player.getOffhandItem().isEmpty()
+                || !isCarrying(player) && !player.getOffhandItem().is(ModItems.CARRIED_CHEST.get())) {
             return;
         }
         ItemStack other = player.getOffhandItem();

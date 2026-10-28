@@ -45,6 +45,7 @@ public final class ChestCarrier {
     public static final String KEY_LOCKED = "message.grabmob.cannot_carry_locked";
     public static final String KEY_PROTECTED = "message.grabmob.cannot_carry_protected";
     public static final String KEY_NESTED = "message.grabmob.cannot_carry_nested";
+    public static final String KEY_TOO_BIG = "message.grabmob.cannot_carry_too_big";
     public static final String KEY_CANNOT_PLACE = "message.grabmob.cannot_place_chest";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChestCarrier.class);
@@ -92,22 +93,29 @@ public final class ChestCarrier {
             refuse(player, KEY_NESTED);
             return Optional.empty();
         }
+        if (CarriedChestData.tooLarge(before)) {
+            refuse(player, KEY_TOO_BIG);
+            return Optional.empty();
+        }
         if (!level.mayInteract(player, pos) || player.blockActionRestricted(level, pos, player.gameMode.getGameModeForPlayer())
                 || NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player)).isCanceled()) {
             refuse(player, KEY_PROTECTED);
             return Optional.empty();
         }
+        closeMenusOn(level, chest);
+        CarriedChestData data = new CarriedChestData(state.setValue(ChestBlock.TYPE, ChestType.SINGLE),
+                chest.saveWithoutMetadata(level.registryAccess()));
         try {
-            closeMenusOn(level, chest);
-            CompoundTag tag = chest.saveWithoutMetadata(level.registryAccess());
             level.removeBlockEntity(pos);
             level.removeBlock(pos, false);
             level.playSound(null, pos, state.getSoundType().getBreakSound(), SoundSource.BLOCKS, 0.8F, 1.0F);
-            return Optional.of(new CarriedChestData(state.setValue(ChestBlock.TYPE, ChestType.SINGLE), tag));
         } catch (RuntimeException e) {
             LOGGER.warn("Chest pickup failed at {}", pos, e);
-            return Optional.empty();
+            if (level.getBlockState(pos).is(CARRYABLE)) {
+                return Optional.empty();
+            }
         }
+        return Optional.of(data);
     }
 
     public static boolean place(ServerPlayer player, ServerLevel level, BlockPos clicked, Direction face,
@@ -144,6 +152,7 @@ public final class ChestCarrier {
             return true;
         } catch (RuntimeException e) {
             LOGGER.warn("Chest placement failed at {}", pos, e);
+            level.removeBlock(pos, false);
             return false;
         }
     }

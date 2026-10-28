@@ -30,12 +30,21 @@ public record CarriedChestData(BlockState state, CompoundTag blockEntity) {
         return blockEntity.getList("Items", Tag.TAG_COMPOUND).size();
     }
 
-    public static boolean containsCarriedChest(CompoundTag blockEntity) {
-        ListTag items = blockEntity.getList("Items", Tag.TAG_COMPOUND);
-        for (int i = 0; i < items.size(); i++) {
-            if (ITEM_ID.equals(items.getCompound(i).getString("id"))) {
+    public static final int MAX_BYTES = 1 << 20;
+
+    public static boolean tooLarge(CompoundTag blockEntity) {
+        return blockEntity.sizeInBytes() > MAX_BYTES;
+    }
+
+    public static boolean containsCarriedChest(Tag tag) {
+        if (tag instanceof CompoundTag compound) {
+            if (ITEM_ID.equals(compound.getString("id"))) {
                 return true;
             }
+            return compound.getAllKeys().stream().anyMatch(key -> containsCarriedChest(compound.get(key)));
+        }
+        if (tag instanceof ListTag list) {
+            return list.stream().anyMatch(CarriedChestData::containsCarriedChest);
         }
         return false;
     }

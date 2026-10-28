@@ -9,6 +9,7 @@
   "message.grabmob.cannot_carry_protected": "Vous ne pouvez pas prendre ce coffre ici.",
   "message.grabmob.cannot_carry_hands": "Vos deux mains doivent être libres pour prendre un coffre.",
   "message.grabmob.cannot_carry_nested": "Ce coffre contient un coffre porté et ne peut pas être pris.",
+  "message.grabmob.cannot_carry_too_big": "Vous ne pouvez pas prendre ce coffre : son contenu est trop volumineux.",
   "message.grabmob.cannot_place_chest": "Le coffre ne peut pas être posé ici.",
   "tooltip.grabmob.chest_contents": "Contenu : %s piles",
   "tooltip.grabmob.health": "Vie : %s / %s",

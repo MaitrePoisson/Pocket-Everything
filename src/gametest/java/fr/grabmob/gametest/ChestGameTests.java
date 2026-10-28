@@ -34,6 +34,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.context.UseOnContext;
@@ -594,6 +595,49 @@ public final class ChestGameTests {
         ItemStack decoded = ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer);
         helper.assertTrue(stack.get(ModDataComponents.CARRIED_CHEST.get()).equals(decoded.get(ModDataComponents.CARRIED_CHEST.get())),
                 "le décodage réseau doit redonner le même contenu");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void nestedChestInsideShulkerIsRefused(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT.east(2), Blocks.CHEST.defaultBlockState());
+        CarriedChestData inner = take(helper, player, SPOT.east(2));
+        ChestBlockEntity chest = filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        ItemStack box = new ItemStack(Items.SHULKER_BOX);
+        box.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(carried(inner))));
+        chest.setItem(0, box);
+        CompoundTag before = contentsOf(helper, SPOT);
+        helper.assertTrue(take(helper, player, SPOT) == null, "un coffre porté caché dans un shulker doit être refusé");
+        helper.assertTrue(contentsOf(helper, SPOT).equals(before), "le coffre doit rester intact");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void oversizedChestIsRefused(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ChestBlockEntity chest = filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CompoundTag big = new CompoundTag();
+        big.putString("x", "a".repeat(50_000));
+        for (int slot = 0; slot < chest.getContainerSize(); slot++) {
+            ItemStack stack = new ItemStack(Items.STICK);
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(big.copy()));
+            chest.setItem(slot, stack);
+        }
+        CompoundTag before = contentsOf(helper, SPOT);
+        helper.assertTrue(take(helper, player, SPOT) == null, "un coffre trop volumineux doit être refusé");
+        helper.assertTrue(contentsOf(helper, SPOT).equals(before), "le coffre doit rester intact");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    public static void carriedChestInOffHandGoesBackToInventory(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        player.setItemInHand(InteractionHand.OFF_HAND, carried(take(helper, player, SPOT)));
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        helper.assertTrue(player.getOffhandItem().isEmpty(), "la main secondaire doit être vidée");
+        helper.assertTrue(player.getInventory().hasAnyMatching(s -> s.is(ModItems.CARRIED_CHEST.get())), "le coffre doit rester dans l'inventaire");
         helper.succeed();
     }
 }

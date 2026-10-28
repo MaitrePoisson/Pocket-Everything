@@ -26,6 +26,7 @@ class LangKeysTest {
             "message.grabmob.cannot_carry_locked",
             "message.grabmob.cannot_carry_nested",
             "message.grabmob.cannot_carry_protected",
+            "message.grabmob.cannot_carry_too_big",
             "message.grabmob.cannot_place_chest",
             "message.grabmob.cannot_release",
             "tooltip.grabmob.chest_contents",
