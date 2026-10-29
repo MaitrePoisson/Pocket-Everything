@@ -83,6 +83,7 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('test') {
     useJUnitPlatform()
+    systemProperty 'project.dir', projectDir.absolutePath
     testLogging {
         events 'passed', 'failed', 'skipped'
         exceptionFormat 'full'

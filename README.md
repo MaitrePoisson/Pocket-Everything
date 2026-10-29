@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <p align="center">
   <img src="docs/images/logo.png" alt="Logo du projet Pocket-Everything : un villageois, un cochon et un coffre posés sur une main" width="200">
 </p>
@@ -19,6 +18,7 @@ Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle cré
 - [Structure du projet](#structure-du-projet)
 - [Compiler et développer](#compiler-et-développer)
 - [Tests](#tests)
+- [Versionnage](#versionnage)
 - [Contribuer](#contribuer)
 - [Licence](#licence)
 
@@ -57,7 +57,7 @@ Le mod est requis des deux côtés : le client pour l'affichage, le serveur pour
 | 21.0.x et 20.x | Non : autre version de Minecraft. |
 | 21.2 et plus | Non : autre version de Minecraft (la plage déclarée est `[21.1.1,22)`). |
 
-**Message « requires neoforge 21.1.265 or above » (ou `Expected range: '[21.1.265,)'`) sur une version 21.1.x plus ancienne, par exemple 21.1.235 :** ce message vient d'un jar antérieur à la version 1.0.1 qui est encore dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis y copier `pocket-everything-1.0.1.jar`.
+**Message « requires neoforge 21.1.265 or above » (ou `Expected range: '[21.1.265,)'`) sur une version 21.1.x plus ancienne, par exemple 21.1.235 :** ce message vient d'un jar antérieur à la version 1.0.1 qui est encore dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis y copier `pocket-everything-1.0.2.jar`.
 
 Auparavant, le mod exigeait NeoForge 21.1.265 ou plus récent (la borne basse de la plage était recopiée de la version de compilation), ce qui le faisait refuser sur les autres versions 21.1.x avec « requires neoforge 21.1.265 or above ». La borne basse est maintenant `neo_min_version` dans `gradle.properties`, distincte de `neo_version` (version de compilation).
 
@@ -66,7 +66,7 @@ Auparavant, le mod exigeait NeoForge 21.1.265 ou plus récent (la borne basse de
 ### Utiliser le mod
 
 1. Installer NeoForge 21.1.x pour Minecraft 1.21.1.
-2. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis copier `deliverable/pocket-everything-1.0.1.jar` dans ces deux dossiers `mods/`.
+2. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis copier `deliverable/pocket-everything-1.0.2.jar` dans ces deux dossiers `mods/`.
 3. Lancer le jeu ou le serveur avec le profil NeoForge. Le fichier de configuration `config/pocket_everything-common.toml` est créé au premier démarrage.
 
 ### Compiler le jar depuis les sources
@@ -77,7 +77,7 @@ Depuis la racine du projet (le dossier qui contient `build.gradle`) :
 ./gradlew build
 ```
 
-Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/pocket-everything-1.0.1.jar`.
+Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/pocket-everything-1.0.2.jar`.
 
 Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à défaut, Gradle télécharge lui-même un JDK 21 (greffon *foojay*).
 
@@ -162,7 +162,7 @@ TEST_GUIDE.md                     Guide de test manuel
 
 | Commande | Effet |
 |---|---|
-| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/pocket-everything-1.0.1.jar` |
+| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/pocket-everything-1.0.2.jar` |
 | `./gradlew runClient` | Lance un client Minecraft de développement avec le mod |
 | `./gradlew runServer` | Lance un serveur de développement |
 | `./gradlew runScreenshot` | Lance le client, prend des captures dans `build/screenshots/` |
@@ -178,6 +178,22 @@ La version du mod, celle de Minecraft et celle de NeoForge sont dans `gradle.pro
 
 Les tests de jeu simulent des joueurs dans un monde réel : capture, relâche, villageois, coffre rempli, sauvegarde et rechargement, mort et récupération, changement de dimension, serveur dédié, cas limites.
 
+## Versionnage
+
+Le numéro de version est `MAJEUR.MINEUR.PATCH`. Sa **seule source de vérité** est `mod_version` dans `gradle.properties` : il est injecté dans `neoforge.mods.toml` (donc affiché dans la liste des mods de NeoForge), dans le nom du jar et dans une ligne du journal au démarrage. Le journal des changements est `CHANGELOG.md`, chaque version livrée porte un tag git `vX.Y.Z`.
+
+À chaque demande livrée, on détermine le type de changement et on incrémente, sans jamais réutiliser ni sauter un numéro :
+
+| Type de demande | Règle | Exemple |
+|---|---|---|
+| Normale (correction, petit ajout, ajustement) | +1 sur le dernier numéro (patch) | 1.0.3 → 1.0.4 |
+| Gros ajout (nouvelle fonctionnalité importante) | +1 sur le numéro du milieu, patch remis à 0 | 1.0.3 → 1.1.0 |
+| Version finale d'un cycle, **uniquement si l'utilisateur l'indique** | +1 sur le premier numéro, les autres remis à 0 | 1.x.x → 2.0.0 |
+
+En cas de doute entre patch et mineur, appliquer la règle ci-dessus et le signaler dans `CHANGELOG.md`.
+
+Procédure de livraison : modifier `mod_version`, ajouter l'entrée datée en tête de `CHANGELOG.md`, mettre à jour le nom du jar cité dans ce README et dans `TEST_GUIDE.md`, lancer `bash .athanor/check.sh` (le test `VersionConsistencyTest` refuse toute incohérence), remplacer le jar de `deliverable/`, committer, puis `git tag vX.Y.Z`.
+
 ## Contribuer
 
 1. Créer une branche à partir de `main`.
@@ -190,6 +206,3 @@ Les messages de commit sont courts, à l'impératif, et décrivent ce que le com
 ## Licence
 
 [MIT](LICENSE). Aucune ressource tierce : voir `docs/CREDITS.md`.
-=======
-# Pocket-Everything
->>>>>>> 765a50eade7bbe4463df7d593ecaec1ac97c4ab0
