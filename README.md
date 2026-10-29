@@ -43,11 +43,21 @@ Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle cré
 
 | Pour… | Il faut |
 |---|---|
-| Jouer | Minecraft Java Edition **1.21.1** et **NeoForge 21.1.x** (21.1.265 ou plus récent), Java 21 |
+| Jouer | Minecraft Java Edition **1.21.1** et **NeoForge 21.1.x** (de 21.1.1 à 21.1.265, voir [Versions de NeoForge prises en charge](#versions-de-neoforge-prises-en-charge)), Java 21 |
 | Compiler | **JDK 21** et accès à Internet (Gradle 8.14.3 est téléchargé par le script `gradlew`) |
 | Lancer le jeu de développement | Compte Minecraft non requis : le client de développement démarre en mode hors ligne |
 
 Le mod est requis des deux côtés : le client pour l'affichage, le serveur pour la logique.
+
+### Versions de NeoForge prises en charge
+
+| Version de NeoForge | Prise en charge |
+|---|---|
+| 21.1.1 à 21.1.265 (toute la branche 21.1.x pour Minecraft 1.21.1) | Oui. Testées : 21.1.1 (la plus ancienne), 21.1.100, 21.1.200 et 21.1.265 (la plus récente) : tests JUnit, 73 GameTests sur serveur dédié et chargement du client, tout est vert. |
+| 21.0.x et 20.x | Non : autre version de Minecraft. |
+| 21.2 et plus | Non : autre version de Minecraft (la plage déclarée est `[21.1.1,22)`). |
+
+Auparavant, le mod exigeait NeoForge 21.1.265 ou plus récent (la borne basse de la plage était recopiée de la version de compilation), ce qui le faisait refuser sur les autres versions 21.1.x avec « requires neoforge 21.1.265 or above ». La borne basse est maintenant `neo_min_version` dans `gradle.properties`, distincte de `neo_version` (version de compilation).
 
 ## Installation
 
