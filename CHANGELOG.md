@@ -2,6 +2,11 @@
 
 Format : `MAJEUR.MINEUR.PATCH` (règles dans le README, section « Versionnage »). Les versions les plus récentes sont en haut.
 
+## 1.0.3 — 2026-10-29
+
+- Première demande livrée selon la règle de versionnage : classée « demande normale » (ajustement du processus de livraison, aucune fonctionnalité de jeu) donc +1 sur le patch, 1.0.2 → 1.0.3.
+- Aucun changement de comportement du mod ; jar `pocket-everything-1.0.3.jar`, tag `v1.0.3`.
+
 ## 1.0.2 — 2026-10-29
 
 - Mise en place du versionnage : source de vérité `mod_version` (`gradle.properties`), ce journal, la ligne de version au démarrage, un test de cohérence et les tags git `vX.Y.Z`.
