@@ -177,6 +177,9 @@ public final class ScreenshotRunner {
         });
         addChest("chest", Blocks.CHEST.defaultBlockState());
         addChest("trapped_chest", Blocks.TRAPPED_CHEST.defaultBlockState());
+        addChest("barrel", Blocks.BARREL.defaultBlockState());
+        addChest("enchanting_table", Blocks.ENCHANTING_TABLE.defaultBlockState());
+        addChest("unknown", Blocks.AIR.defaultBlockState());
         SHOTS.add(new Shot("gui", () -> {
             clearHand(mc);
             guiGrid = true;
@@ -223,6 +226,13 @@ public final class ScreenshotRunner {
             mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
             holdInHand(mc, STACKS.get(5));
         }));
+        for (int i = 6; i <= 8; i++) {
+            int index = i;
+            SHOTS.add(new Shot("third_" + NAMES.get(i), () -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+                holdInHand(mc, STACKS.get(index));
+            }));
+        }
         SHOTS.add(new Shot("third_back_cow", () -> {
             mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
             holdInHand(mc, STACKS.get(1));

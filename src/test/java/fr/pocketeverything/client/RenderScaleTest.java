@@ -37,4 +37,31 @@ class RenderScaleTest {
         assertEquals(1.0F, RenderScale.forSize(Float.NaN, Float.NaN));
         assertEquals(1.0F, RenderScale.forSize(-1.0F, -2.0F));
     }
+
+    @Test
+    void chestSizedBlockKeepsItsScale() {
+        assertEquals(1.0F, RenderScale.forBlock(0.875F), 1.0E-5F);
+    }
+
+    @Test
+    void fullBlockIsSlightlyReduced() {
+        assertEquals(0.875F, RenderScale.forBlock(1.0F), 1.0E-5F);
+    }
+
+    @Test
+    void smallBlockIsEnlargedWithinLimits() {
+        assertEquals(0.875F / 0.7F, RenderScale.forBlock(0.7F), 1.0E-5F);
+        assertEquals(RenderScale.BLOCK_MAX_SCALE, RenderScale.forBlock(0.1F));
+    }
+
+    @Test
+    void hugeBlockIsClampedToMinimum() {
+        assertEquals(RenderScale.BLOCK_MIN_SCALE, RenderScale.forBlock(5.0F));
+    }
+
+    @Test
+    void invalidBlockSizeGivesNeutralScale() {
+        assertEquals(1.0F, RenderScale.forBlock(0.0F));
+        assertEquals(1.0F, RenderScale.forBlock(Float.NaN));
+    }
 }
