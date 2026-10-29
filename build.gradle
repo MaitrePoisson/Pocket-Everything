@@ -92,7 +92,8 @@ tasks.named('test') {
 processResources {
     var replaceProperties = [
         minecraft_version: minecraft_version,
-        neo_version      : neo_version,
+        neo_min_version  : neo_min_version,
+        neo_max_version  : neo_max_version,
         mod_id           : mod_id,
         mod_name         : mod_name,
         mod_version      : mod_version,
