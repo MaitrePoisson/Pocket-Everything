@@ -3,7 +3,7 @@
 ## Lancer
 
 - **Client de développement** : `./gradlew runClient` (JDK 21). Créer un monde créatif ou survie.
-- **Installation réelle** : NeoForge 21.1.x (21.1.1 à 21.1.265) pour Minecraft 1.21.1, puis `deliverable/pocket-everything-1.0.3.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
+- **Installation réelle** : NeoForge 21.1.x (21.1.1 à 21.1.265) pour Minecraft 1.21.1, puis `deliverable/pocket-everything-1.1.0.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
 - **Serveur dédié** : même jar dans `mods/` du serveur (`./gradlew runServer` en développement).
 - **Vérification automatique** : `bash .athanor/check.sh` (build, 33 tests JUnit, 86 GameTests, captures d'écran, copie du jar dans `deliverable/`).
 
@@ -59,6 +59,13 @@
 - [ ] Main secondaire (objet en main gauche) et joueur gaucher (Options > Compétences > Bras principal) : le bon bras apparaît, à la bonne place.
 - [ ] Troisième personne (F5, de face et de dos) : le bras du modèle du joueur tient l'objet.
 - [ ] Main vide, ou autre objet en main : rendu inchangé par rapport à Minecraft.
+
+### Toolbox de Create (nécessite Create installé)
+- [ ] Poser une Toolbox, la remplir (plusieurs objets, plusieurs tiroirs), la colorer : sneak + clic droit, deux mains vides : elle disparaît, rien au sol, l'objet « Porté : Toolbox » apparaît avec son vrai modèle de Toolbox.
+- [ ] La reposer ailleurs : contenu, couleur et orientation identiques.
+- [ ] Item Vault (Create) : le geste ne le prend pas (comportement normal du bloc, aucun message).
+- [ ] Sans Create installé : aucune erreur au démarrage, coffres inchangés.
+- [ ] Datapack : ajouter `minecraft:barrel` à `carryable_chests.json` (voir README) : un tonneau se prend et se repose avec son contenu ; l'ajouter à `never_carryable.json` le refuse.
 
 ### Coffre porté
 - [ ] Remplir un coffre (piles variées, objet nommé, shulker), sneak + clic droit mains vides : il disparaît, rien au sol, le coffre apparaît dans la main.

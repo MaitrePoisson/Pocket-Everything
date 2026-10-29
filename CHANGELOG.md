@@ -2,6 +2,14 @@
 
 Format : `MAJEUR.MINEUR.PATCH` (règles dans le README, section « Versionnage »). Les versions les plus récentes sont en haut.
 
+## 1.1.0 — 2026-10-29
+
+- Gros ajout (règle : +1 sur le numéro du milieu) : le port de blocs ne se limite plus aux coffres. Toute block entity de l'étiquette `carryable_chests` se prend et se repose avec son contenu ; la **Toolbox de Create** est portable par défaut.
+- Nouvelle étiquette `never_carryable` (prioritaire, modifiable par datapack) : `create:item_vault` exclu.
+- Le bloc porté est rendu avec son vrai modèle ; repli sur le coffre simple pour un bloc inconnu.
+- 13 GameTests (bloc de test hors du jar) : aller-retour, verrou, protections, exclusion, imbrication, menus, mort, dimension. Total 86 GameTests, 38 tests JUnit.
+- README : liste des blocs portables et section « Ajouter un bloc par datapack ».
+
 ## 1.0.3 — 2026-10-29
 
 - Première demande livrée selon la règle de versionnage : classée « demande normale » (ajustement du processus de livraison, aucune fonctionnalité de jeu) donc +1 sur le patch, 1.0.2 → 1.0.3.

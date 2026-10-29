@@ -4,7 +4,7 @@
 
 # Pocket-Everything
 
-Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre dans les deux mains**, contenu compris, et de le reposer à l'identique.
+Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre, une Toolbox de Create ou tout autre bloc à inventaire** dans les deux mains, contenu compris, et de le reposer à l'identique.
 
 ![Une vache capturée et un coffre porté, vus à la première personne](docs/images/apercu.png)
 
@@ -31,8 +31,11 @@ Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle cré
 - Rendu 3D exact de la créature capturée (inventaire, main, sol, cadre), à une échelle adaptée à sa taille, et bras du joueur visible qui la tient.
 - Liste noire modifiable (joueurs, dragon, Wither, bateaux, wagonnets, cadres, tableaux, support d'armure, nœud de laisse).
 
-**Coffre porté** (objet `pocket_everything:carried_chest`)
-- Prise d'un coffre ou d'un coffre piégé, contenu, nom, orientation et table de butin non ouverte conservés ; les coffres déjà posés se prennent sans migration.
+**Bloc porté** (objet `pocket_everything:carried_chest`)
+- Blocs portables par défaut : le coffre, le coffre piégé et la **Toolbox de Create** (si Create est installé). Contenu, nom, orientation, couleur et table de butin non ouverte conservés ; les blocs déjà posés se prennent sans migration.
+- Exclus par défaut : l'**Item Vault** de Create et les blocs multiples (ils se reconstruisent à la pose et dupliqueraient ou casseraient la structure).
+- Rendu : le bloc porté est affiché avec son vrai modèle ; un bloc inconnu retombe sur un coffre simple.
+- Tout autre bloc à inventaire s'ajoute par datapack (voir [Ajouter un bloc par datapack](#ajouter-un-bloc-par-datapack)).
 - Coffre tenu à deux bras, en première et troisième personne, visible des autres joueurs ; main secondaire bloquée pendant le port.
 - Objet lâché ou laissé à la mort invulnérable et sans disparition.
 - Pose et prise transactionnelles : rien n'est perdu ni dupliqué en cas d'échec.
@@ -57,7 +60,7 @@ Le mod est requis des deux côtés : le client pour l'affichage, le serveur pour
 | 21.0.x et 20.x | Non : autre version de Minecraft. |
 | 21.2 et plus | Non : autre version de Minecraft (la plage déclarée est `[21.1.1,22)`). |
 
-**Message « requires neoforge 21.1.265 or above » (ou `Expected range: '[21.1.265,)'`) sur une version 21.1.x plus ancienne, par exemple 21.1.235 :** ce message vient d'un jar antérieur à la version 1.0.1 qui est encore dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis y copier `pocket-everything-1.0.3.jar`.
+**Message « requires neoforge 21.1.265 or above » (ou `Expected range: '[21.1.265,)'`) sur une version 21.1.x plus ancienne, par exemple 21.1.235 :** ce message vient d'un jar antérieur à la version 1.0.1 qui est encore dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis y copier `pocket-everything-1.1.0.jar`.
 
 Auparavant, le mod exigeait NeoForge 21.1.265 ou plus récent (la borne basse de la plage était recopiée de la version de compilation), ce qui le faisait refuser sur les autres versions 21.1.x avec « requires neoforge 21.1.265 or above ». La borne basse est maintenant `neo_min_version` dans `gradle.properties`, distincte de `neo_version` (version de compilation).
 
@@ -66,7 +69,7 @@ Auparavant, le mod exigeait NeoForge 21.1.265 ou plus récent (la borne basse de
 ### Utiliser le mod
 
 1. Installer NeoForge 21.1.x pour Minecraft 1.21.1.
-2. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis copier `deliverable/pocket-everything-1.0.3.jar` dans ces deux dossiers `mods/`.
+2. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis copier `deliverable/pocket-everything-1.1.0.jar` dans ces deux dossiers `mods/`.
 3. Lancer le jeu ou le serveur avec le profil NeoForge. Le fichier de configuration `config/pocket_everything-common.toml` est créé au premier démarrage.
 
 ### Compiler le jar depuis les sources
@@ -77,7 +80,7 @@ Depuis la racine du projet (le dossier qui contient `build.gradle`) :
 ./gradlew build
 ```
 
-Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/pocket-everything-1.0.3.jar`.
+Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/pocket-everything-1.1.0.jar`.
 
 Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à défaut, Gradle télécharge lui-même un JDK 21 (greffon *foojay*).
 
@@ -94,14 +97,15 @@ Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à d
 - La créature réapparaît sur la face visée du bloc ; l'objet est consommé.
 - L'infobulle de l'objet indique la créature, son nom et sa vie (par exemple « Captured Entity: Cow » en anglais, « Entité capturée : Vache » en français).
 
-### Porter un coffre
+### Porter un coffre ou un autre bloc à inventaire
 
 | Action | Geste |
 |---|---|
-| Prendre | Accroupi + clic droit, **les deux mains vides**, sur un coffre ou un coffre piégé |
+| Prendre | Accroupi + clic droit, **les deux mains vides**, sur un coffre, un coffre piégé ou une Toolbox de Create |
 | Poser | Clic droit avec le coffre porté sur un bloc |
 
 - Coffre double : seule la moitié visée est prise, l'autre devient un coffre simple.
+- Toolbox de Create : prise et reposée avec son contenu et sa couleur ; l'Item Vault est refusé sans message (il reste un bloc normal).
 - Refus avec message : coffre verrouillé, zone protégée, main secondaire occupée, coffre contenant déjà un coffre porté (même caché dans un shulker), contenu de plus de 1 Mio.
 - La ligne de commande permet de s'en procurer un exemplaire vide pour essayer : `/give @s pocket_everything:carried_chest`.
 
@@ -132,7 +136,29 @@ Fichier `config/pocket_everything-common.toml` (créé au premier lancement, dan
 | `carryChestsEnabled` | `true` | Active la prise et la pose de coffres. À `false`, le geste ouvre le coffre normalement. |
 | `extraBlacklist` | `[]` | Identifiants d'entités supplémentaires interdits, par exemple `["minecraft:warden"]`. |
 
-La liste noire de base est une étiquette de données modifiable par datapack : `data/pocket_everything/tags/entity_type/blacklist.json`. Les blocs portables sont dans `data/pocket_everything/tags/block/carryable_chests.json` (`minecraft:chest` et `minecraft:trapped_chest`).
+La liste noire de base est une étiquette de données modifiable par datapack : `data/pocket_everything/tags/entity_type/blacklist.json`. Les blocs portables sont dans `data/pocket_everything/tags/block/carryable_chests.json` (`minecraft:chest`, `minecraft:trapped_chest` et `create:toolbox`), les exclusions dans `never_carryable.json` (`create:item_vault`).
+
+### Ajouter un bloc par datapack
+
+Un bloc est portable s'il est dans l'étiquette `pocket_everything:carryable_chests`, **n'est pas** dans `pocket_everything:never_carryable` (prioritaire) et possède une block entity. Exemple, dans un datapack, pour porter un tonneau avec son contenu : `data/pocket_everything/tags/block/carryable_chests.json`
+
+```json
+{
+  "replace": false,
+  "values": ["minecraft:barrel", { "id": "unmod:boite", "required": false }]
+}
+```
+
+et pour interdire un bloc (même s'il est listé ailleurs) : `data/pocket_everything/tags/block/never_carryable.json`
+
+```json
+{
+  "replace": false,
+  "values": ["minecraft:barrel"]
+}
+```
+
+`"required": false` évite une erreur si le mod du bloc n'est pas installé. Les protections (verrou, zone protégée, mode Aventure) s'appliquent à tout bloc portable.
 
 ## Structure du projet
 
@@ -162,7 +188,7 @@ TEST_GUIDE.md                     Guide de test manuel
 
 | Commande | Effet |
 |---|---|
-| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/pocket-everything-1.0.3.jar` |
+| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/pocket-everything-1.1.0.jar` |
 | `./gradlew runClient` | Lance un client Minecraft de développement avec le mod |
 | `./gradlew runServer` | Lance un serveur de développement |
 | `./gradlew runScreenshot` | Lance le client, prend des captures dans `build/screenshots/` |
@@ -176,7 +202,7 @@ La version du mod, celle de Minecraft et celle de NeoForge sont dans `gradle.pro
 ./gradlew runGameTestServer  # tests de jeu (src/gametest), code de sortie 1 si l'un échoue
 ```
 
-Les tests de jeu simulent des joueurs dans un monde réel : capture, relâche, villageois, coffre rempli, sauvegarde et rechargement, mort et récupération, changement de dimension, serveur dédié, cas limites.
+Les tests de jeu simulent des joueurs dans un monde réel : capture, relâche, villageois, coffre rempli, bloc à inventaire non-coffre (bloc de test hors du jar), sauvegarde et rechargement, mort et récupération, changement de dimension, serveur dédié, cas limites.
 
 ## Versionnage
 
@@ -186,8 +212,8 @@ Le numéro de version est `MAJEUR.MINEUR.PATCH`. Sa **seule source de vérité**
 
 | Type de demande | Règle | Exemple |
 |---|---|---|
-| Normale (correction, petit ajout, ajustement) | +1 sur le dernier numéro (patch) | 1.0.3 → 1.0.4 |
-| Gros ajout (nouvelle fonctionnalité importante) | +1 sur le numéro du milieu, patch remis à 0 | 1.0.3 → 1.1.0 |
+| Normale (correction, petit ajout, ajustement) | +1 sur le dernier numéro (patch) | 1.1.0 → 1.1.1 |
+| Gros ajout (nouvelle fonctionnalité importante) | +1 sur le numéro du milieu, patch remis à 0 | 1.1.0 → 1.2.0 |
 | Version finale d'un cycle, **uniquement si l'utilisateur l'indique** | +1 sur le premier numéro, les autres remis à 0 | 1.x.x → 2.0.0 |
 
 En cas de doute entre patch et mineur, appliquer la règle ci-dessus et le signaler dans `CHANGELOG.md`.
