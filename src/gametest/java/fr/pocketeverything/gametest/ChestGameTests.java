@@ -90,16 +90,16 @@ public final class ChestGameTests {
         return helper.getBlockEntity(at).saveWithoutMetadata(helper.getLevel().registryAccess());
     }
 
-    private static void assertNothingDropped(GameTestHelper helper) {
+    static void assertNothingDropped(GameTestHelper helper) {
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, helper.getBounds().inflate(4.0));
         helper.assertTrue(drops.isEmpty(), "aucun objet ne devait être lâché au sol (" + drops.size() + ")");
     }
 
-    private static CarriedChestData take(GameTestHelper helper, ServerPlayer player, BlockPos at) {
+    static CarriedChestData take(GameTestHelper helper, ServerPlayer player, BlockPos at) {
         return ChestCarrier.pickUp(player, helper.getLevel(), helper.absolutePos(at)).orElse(null);
     }
 
-    private static boolean put(GameTestHelper helper, ServerPlayer player, BlockPos clicked, CarriedChestData data) {
+    static boolean put(GameTestHelper helper, ServerPlayer player, BlockPos clicked, CarriedChestData data) {
         return ChestCarrier.place(player, helper.getLevel(), helper.absolutePos(clicked), Direction.UP, data);
     }
 
@@ -273,17 +273,17 @@ public final class ChestGameTests {
         return new BlockHitResult(Vec3.atCenterOf(abs), Direction.UP, abs, false);
     }
 
-    private static InteractionResult click(GameTestHelper helper, ServerPlayer player, InteractionHand hand, BlockPos at) {
+    static InteractionResult click(GameTestHelper helper, ServerPlayer player, InteractionHand hand, BlockPos at) {
         return player.gameMode.useItemOn(player, helper.getLevel(), player.getItemInHand(hand), hand, hitOn(helper, at));
     }
 
-    private static ItemStack carried(CarriedChestData data) {
+    static ItemStack carried(CarriedChestData data) {
         ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
         stack.set(ModDataComponents.CARRIED_CHEST.get(), data);
         return stack;
     }
 
-    private static void assertCarrying(GameTestHelper helper, ServerPlayer player, boolean expected) {
+    static void assertCarrying(GameTestHelper helper, ServerPlayer player, boolean expected) {
         helper.assertTrue(player.getMainHandItem().is(ModItems.CARRIED_CHEST.get()) == expected,
                 expected ? "le coffre aurait dû être en main" : "aucun coffre ne devait être en main");
     }

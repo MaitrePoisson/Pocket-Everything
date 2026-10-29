@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "create:item_vault",
+      "required": false
+    },
+    "pocket_everything:test_vault"
+  ]
+}

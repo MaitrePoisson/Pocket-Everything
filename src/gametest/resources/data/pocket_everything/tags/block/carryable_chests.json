@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:chest",
+    "minecraft:trapped_chest",
+    {
+      "id": "create:toolbox",
+      "required": false
+    },
+    "pocket_everything:test_storage",
+    "pocket_everything:test_handler",
+    "pocket_everything:test_vault"
+  ]
+}

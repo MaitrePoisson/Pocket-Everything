@@ -22,5 +22,6 @@ public final class GameTestRegistration {
         event.register(PolishGameTests.class);
         event.register(ChestGameTests.class);
         event.register(ChestEdgeGameTests.class);
+        event.register(StorageCarrierGameTests.class);
     }
 }
