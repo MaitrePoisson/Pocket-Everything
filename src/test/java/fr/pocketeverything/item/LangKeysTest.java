@@ -20,6 +20,7 @@ class LangKeysTest {
             "item.pocket_everything.captured_entity",
             "item.pocket_everything.captured_entity.named",
             "item.pocket_everything.carried_chest",
+            "item.pocket_everything.carried_chest.block",
             "item.pocket_everything.carried_chest.named",
             "message.pocket_everything.cannot_capture",
             "message.pocket_everything.cannot_carry_hands",

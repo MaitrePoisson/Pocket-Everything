@@ -27,7 +27,13 @@ public record CarriedChestData(BlockState state, CompoundTag blockEntity) {
     public static final String ITEM_ID = "pocket_everything:carried_chest";
 
     public int stackCount() {
-        return blockEntity.getList("Items", Tag.TAG_COMPOUND).size();
+        int count = blockEntity.getList("Items", Tag.TAG_COMPOUND).size();
+        for (String key : blockEntity.getAllKeys()) {
+            if (blockEntity.get(key) instanceof CompoundTag child) {
+                count += child.getList("Items", Tag.TAG_COMPOUND).size();
+            }
+        }
+        return count;
     }
 
     public static final int MAX_BYTES = 1 << 20;

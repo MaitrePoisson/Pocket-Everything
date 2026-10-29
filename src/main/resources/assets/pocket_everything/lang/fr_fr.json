@@ -5,13 +5,14 @@
   "item.pocket_everything.carried_chest.named": "Coffre porté : %s",
   "message.pocket_everything.cannot_capture": "Cette créature ne peut pas être capturée.",
   "message.pocket_everything.cannot_release": "Cette créature ne peut pas être relâchée ici.",
-  "message.pocket_everything.cannot_carry_locked": "Vous ne pouvez pas prendre un coffre verrouillé.",
-  "message.pocket_everything.cannot_carry_protected": "Vous ne pouvez pas prendre ce coffre ici.",
-  "message.pocket_everything.cannot_carry_hands": "Vos deux mains doivent être libres pour prendre un coffre.",
-  "message.pocket_everything.cannot_carry_nested": "Ce coffre contient un coffre porté et ne peut pas être pris.",
-  "message.pocket_everything.cannot_carry_too_big": "Vous ne pouvez pas prendre ce coffre : son contenu est trop volumineux.",
-  "message.pocket_everything.cannot_place_chest": "Le coffre ne peut pas être posé ici.",
+  "message.pocket_everything.cannot_carry_locked": "Vous ne pouvez pas prendre un conteneur verrouillé.",
+  "message.pocket_everything.cannot_carry_protected": "Vous ne pouvez pas prendre ce conteneur ici.",
+  "message.pocket_everything.cannot_carry_hands": "Vos deux mains doivent être libres pour prendre un conteneur.",
+  "message.pocket_everything.cannot_carry_nested": "Ce conteneur contient un coffre porté et ne peut pas être pris.",
+  "message.pocket_everything.cannot_carry_too_big": "Vous ne pouvez pas prendre ce conteneur : son contenu est trop volumineux.",
+  "message.pocket_everything.cannot_place_chest": "Le conteneur ne peut pas être posé ici.",
   "tooltip.pocket_everything.chest_contents": "Contenu : %s piles",
   "tooltip.pocket_everything.health": "Vie : %s / %s",
-  "tooltip.pocket_everything.profession": "Métier : %s"
+  "tooltip.pocket_everything.profession": "Métier : %s",
+  "item.pocket_everything.carried_chest.block": "Porté : %s"
 }

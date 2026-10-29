@@ -84,4 +84,35 @@ class CarriedChestDataTest {
         assertFalse(CarriedChestData.containsCarriedChest(sample().blockEntity()));
         assertFalse(CarriedChestData.containsCarriedChest(new CompoundTag()));
     }
+
+    @Test
+    void stackCountAlsoCountsNestedInventories() {
+        CompoundTag item = new CompoundTag();
+        item.putString("id", "minecraft:stone");
+        ListTag items = new ListTag();
+        items.add(item);
+        items.add(item.copy());
+        CompoundTag inventory = new CompoundTag();
+        inventory.put("Items", items);
+        CompoundTag tag = new CompoundTag();
+        tag.put("Inventory", inventory);
+        assertEquals(2, new CarriedChestData(Blocks.BARREL.defaultBlockState(), tag).stackCount());
+    }
+
+    @Test
+    void dataWithoutKnownBlockIsRejectedWithoutException() {
+        CompoundTag encoded = new CompoundTag();
+        encoded.putString("Name", "unknown_mod:storage");
+        CompoundTag data = new CompoundTag();
+        data.put("state", encoded);
+        data.put("block_entity", new CompoundTag());
+        assertTrue(CarriedChestData.CODEC.parse(NbtOps.INSTANCE, data).result().isEmpty());
+    }
+
+    @Test
+    void anyBlockStateRoundTripsThroughTheCodec() {
+        CarriedChestData barrel = new CarriedChestData(Blocks.BARREL.defaultBlockState(), new CompoundTag());
+        Tag encoded = CarriedChestData.CODEC.encodeStart(NbtOps.INSTANCE, barrel).getOrThrow();
+        assertEquals(barrel, CarriedChestData.CODEC.parse(NbtOps.INSTANCE, encoded).getOrThrow());
+    }
 }
