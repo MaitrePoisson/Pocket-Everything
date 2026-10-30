@@ -66,7 +66,7 @@ public final class CarriedChestRenderer extends BlockEntityWithoutLevelRenderer 
     @Override
     public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack poseStack,
             MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST.get());
+        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST);
         BlockState carried = data == null ? Blocks.CHEST.defaultBlockState() : data.state();
         boolean left = context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;

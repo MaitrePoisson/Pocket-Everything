@@ -33,9 +33,9 @@ class VersionConsistencyTest {
     }
 
     @Test
-    void modsTomlCarriesTheModVersion() throws IOException {
-        Matcher m = Pattern.compile("(?m)^version\\s*=\\s*\"([^\"]+)\"")
-                .matcher(read("build/resources/main/META-INF/neoforge.mods.toml"));
+    void fabricModJsonCarriesTheModVersion() throws IOException {
+        Matcher m = Pattern.compile("\"version\"\s*:\s*\"([^\"]+)\"")
+                .matcher(read("build/resources/main/fabric.mod.json"));
         assertTrue(m.find());
         assertEquals(modVersion(), m.group(1));
     }

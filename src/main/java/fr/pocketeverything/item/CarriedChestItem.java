@@ -13,7 +13,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Blocks;
@@ -32,15 +31,8 @@ public class CarriedChestItem extends Item {
     }
 
     @Override
-    public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
-        entity.setInvulnerable(true);
-        entity.setUnlimitedLifetime();
-        return false;
-    }
-
-    @Override
     public Component getName(ItemStack stack) {
-        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST.get());
+        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST);
         if (data == null) {
             return Component.translatable(KEY_NAME);
         }
@@ -56,7 +48,7 @@ public class CarriedChestItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST.get());
+        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST);
         if (data != null) {
             tooltip.add(Component.translatable(KEY_CONTENTS, data.stackCount()).withStyle(ChatFormatting.GRAY));
         }
@@ -76,7 +68,7 @@ public class CarriedChestItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         ItemStack stack = context.getItemInHand();
-        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST.get());
+        CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST);
         if (data == null) {
             return InteractionResult.PASS;
         }

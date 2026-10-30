@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.148'
+    id 'fabric-loom' version '1.11.8'
 }
 
 version = mod_version
@@ -18,64 +18,22 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
-sourceSets {
-    gametest
-    dev
-}
+sourceSets.main.java.exclude(
+    'fr/pocketeverything/event/**',
+    'fr/pocketeverything/client/*ClientExtensions.java',
+    'fr/pocketeverything/client/ClientSetup.java',
+    'fr/pocketeverything/client/*Renderer.java'
+)
 
 repositories {
-    mavenLocal()
+    mavenCentral()
 }
-
-neoForge {
-    version = neo_version
-
-    parchment {
-        enabled = false
-    }
-
-    mods {
-        pocket_everything {
-            sourceSet sourceSets.main
-            sourceSet sourceSets.gametest
-            sourceSet sourceSets.dev
-        }
-    }
-
-    unitTest {
-        enable()
-        testedMod = mods.pocket_everything
-    }
-
-    runs {
-        client {
-            client()
-            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
-        }
-        server {
-            server()
-            programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
-        }
-        screenshot {
-            client()
-            gameDirectory = file("runs/screenshot")
-            systemProperty "pocket_everything.screenshot.dir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath
-            programArguments = ["--width", "960", "--height", "540"]
-        }
-        gameTestServer {
-            type = 'gameTestServer'
-            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
-        }
-    }
-}
-
-neoForge.addModdingDependenciesTo(sourceSets.gametest)
-neoForge.addModdingDependenciesTo(sourceSets.dev)
 
 dependencies {
-    gametestImplementation sourceSets.main.output
-    devImplementation sourceSets.main.output
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -83,6 +41,7 @@ dependencies {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 21
 }
 
 tasks.named('test') {
@@ -96,18 +55,21 @@ tasks.named('test') {
 
 processResources {
     var replaceProperties = [
-        minecraft_version: minecraft_version,
-        neo_min_version  : neo_min_version,
-        neo_max_version  : neo_max_version,
-        mod_id           : mod_id,
-        mod_name         : mod_name,
-        mod_version      : mod_version,
-        mod_license      : mod_license,
-        mod_authors      : mod_authors,
-        mod_description  : mod_description
+        minecraft_version    : minecraft_version,
+        fabric_loader_version: fabric_loader_version,
+        mod_id               : mod_id,
+        mod_name             : mod_name,
+        mod_version          : mod_version,
+        mod_license          : mod_license,
+        mod_authors          : mod_authors,
+        mod_description      : mod_description
     ]
     inputs.properties replaceProperties
-    filesMatching(['META-INF/neoforge.mods.toml']) {
+    filesMatching(['fabric.mod.json']) {
         expand replaceProperties
     }
+}
+
+tasks.named('remapJar') {
+    archiveVersion = ''
 }

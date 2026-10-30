@@ -3,7 +3,7 @@
 ## Lancer
 
 - **Client de développement** : `./gradlew runClient` (JDK 21). Créer un monde créatif ou survie.
-- **Installation réelle** : NeoForge 21.1.x (21.1.1 à 21.1.265) pour Minecraft 1.21.1, puis `deliverable/pocket-everything-neoforge-1.21.1.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
+- **Installation réelle** : NeoForge 21.1.x (21.1.1 à 21.1.265) pour Minecraft 1.21.1, puis `deliverable/pocket-everything-fabric-1.21.1.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
 - **Serveur dédié** : même jar dans `mods/` du serveur (`./gradlew runServer` en développement).
 - **Vérification automatique** : `bash .athanor/check.sh` (build, 33 tests JUnit, 86 GameTests, captures d'écran, copie du jar dans `deliverable/`).
 

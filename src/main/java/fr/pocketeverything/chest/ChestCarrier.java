@@ -6,6 +6,7 @@ import fr.pocketeverything.registry.ModItems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -31,8 +32,6 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.BlockEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +105,7 @@ public final class ChestCarrier {
             return Optional.empty();
         }
         if (!level.mayInteract(player, pos) || player.blockActionRestricted(level, pos, player.gameMode.getGameModeForPlayer())
-                || NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player)).isCanceled()) {
+                || !PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, pos, state, entity)) {
             refuse(player, KEY_PROTECTED);
             return Optional.empty();
         }
@@ -132,7 +131,7 @@ public final class ChestCarrier {
                 || !(data.state().getBlock() instanceof EntityBlock) || data.state().is(EXCLUDED)) {
             return false;
         }
-        ItemStack stand = new ItemStack(ModItems.CARRIED_CHEST.get());
+        ItemStack stand = new ItemStack(ModItems.CARRIED_CHEST);
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(clicked), face, clicked, false);
         BlockPlaceContext context = new BlockPlaceContext(level, player, InteractionHand.MAIN_HAND, stand, hit);
         BlockPos pos = context.getClickedPos();

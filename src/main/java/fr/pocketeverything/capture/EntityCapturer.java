@@ -53,7 +53,7 @@ public final class EntityCapturer {
     }
 
     private static boolean isAllowedType(EntityType<?> type) {
-        if (!type.canSerialize() || type.is(BLACKLIST) || !BuiltInRegistries.ENTITY_TYPE.containsValue(type)) {
+        if (!type.canSerialize() || type.is(BLACKLIST) || BuiltInRegistries.ENTITY_TYPE.getResourceKey(type).isEmpty()) {
             return false;
         }
         return !PocketEverythingConfig.isExtraBlacklisted(BuiltInRegistries.ENTITY_TYPE.getKey(type));

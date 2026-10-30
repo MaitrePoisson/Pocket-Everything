@@ -59,7 +59,7 @@ public final class CapturedEntityRenderer extends BlockEntityWithoutLevelRendere
     @Override
     public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack poseStack,
             MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY.get());
+        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY);
         ClientLevel level = Minecraft.getInstance().level;
         if (data == null || level == null) {
             return;

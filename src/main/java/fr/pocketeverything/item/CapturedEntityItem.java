@@ -40,7 +40,7 @@ public class CapturedEntityItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         ItemStack stack = context.getItemInHand();
-        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY.get());
+        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY);
         if (data == null) {
             return InteractionResult.PASS;
         }
@@ -74,7 +74,7 @@ public class CapturedEntityItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY.get());
+        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY);
         if (data == null) {
             return Component.translatable(KEY_NAME);
         }
@@ -91,7 +91,7 @@ public class CapturedEntityItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY.get());
+        CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY);
         if (data == null) {
             return;
         }

@@ -73,8 +73,8 @@ public final class ModEvents {
         if (data.isEmpty()) {
             return false;
         }
-        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY.get());
-        stack.set(ModDataComponents.CAPTURED_ENTITY.get(), data.get());
+        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY);
+        stack.set(ModDataComponents.CAPTURED_ENTITY, data.get());
         giveToPlayer(player, stack);
         level.sendParticles(ParticleTypes.POOF, x, y, z, 12, spreadX, spreadY, spreadX, 0.02);
         level.playSound(null, x, y, z, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.6F, 0.8F);

@@ -30,7 +30,7 @@ public final class ChestEvents {
     }
 
     public static boolean isCarrying(Player player) {
-        return player.getMainHandItem().is(ModItems.CARRIED_CHEST.get());
+        return player.getMainHandItem().is(ModItems.CARRIED_CHEST);
     }
 
     public static boolean isPickupGesture(Player player, InteractionHand hand, BlockState state) {
@@ -68,8 +68,8 @@ public final class ChestEvents {
         }
         Optional<CarriedChestData> data = ChestCarrier.pickUp(player, level, event.getPos());
         data.ifPresent(carried -> {
-            ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
-            stack.set(ModDataComponents.CARRIED_CHEST.get(), carried);
+            ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST);
+            stack.set(ModDataComponents.CARRIED_CHEST, carried);
             player.setItemInHand(InteractionHand.MAIN_HAND, stack);
         });
         return true;
@@ -93,7 +93,7 @@ public final class ChestEvents {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.getOffhandItem().isEmpty()
-                || !isCarrying(player) && !player.getOffhandItem().is(ModItems.CARRIED_CHEST.get())) {
+                || !isCarrying(player) && !player.getOffhandItem().is(ModItems.CARRIED_CHEST)) {
             return;
         }
         ItemStack other = player.getOffhandItem();
