@@ -9,7 +9,8 @@
   "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["fr.pocketeverything.PocketEverything"]
+    "main": ["fr.pocketeverything.PocketEverything"],
+    "client": ["fr.pocketeverything.client.PocketEverythingClient"]
   },
   "mixins": ["pocket_everything.mixins.json"],
   "depends": {

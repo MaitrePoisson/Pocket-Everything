@@ -5,7 +5,7 @@ import com.mojang.math.Axis;
 import fr.pocketeverything.data.CarriedChestData;
 import fr.pocketeverything.registry.ModDataComponents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.EmptyBlockGetter;
@@ -25,7 +25,7 @@ import org.joml.Quaternionf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CarriedChestRenderer extends BlockEntityWithoutLevelRenderer {
+public final class CarriedChestRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CarriedChestRenderer.class);
 
@@ -59,12 +59,8 @@ public final class CarriedChestRenderer extends BlockEntityWithoutLevelRenderer 
         }
     }
 
-    public CarriedChestRenderer() {
-        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
-    }
-
     @Override
-    public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack poseStack,
+    public void render(ItemStack stack, ItemDisplayContext context, PoseStack poseStack,
             MultiBufferSource buffer, int packedLight, int packedOverlay) {
         CarriedChestData data = stack.get(ModDataComponents.CARRIED_CHEST);
         BlockState carried = data == null ? Blocks.CHEST.defaultBlockState() : data.state();

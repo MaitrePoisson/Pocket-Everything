@@ -18,11 +18,29 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
-sourceSets.main.java.exclude(
-    'fr/pocketeverything/client/*ClientExtensions.java',
-    'fr/pocketeverything/client/ClientSetup.java',
-    'fr/pocketeverything/client/*Renderer.java'
-)
+sourceSets {
+    dev {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+loom {
+    mods {
+        pocket_everything_dev {
+            sourceSet sourceSets.dev
+        }
+    }
+    runs {
+        screenshot {
+            client()
+            source sourceSets.dev
+            runDir 'runs/screenshot'
+            vmArg "-Dpocket_everything.screenshot.dir=${layout.buildDirectory.dir('screenshots').get().asFile.absolutePath}"
+            programArgs '--width', '960', '--height', '540'
+        }
+    }
+}
 
 repositories {
     mavenCentral()

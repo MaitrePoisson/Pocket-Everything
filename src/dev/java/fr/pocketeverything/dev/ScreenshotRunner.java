@@ -1,7 +1,6 @@
 package fr.pocketeverything.dev;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import fr.pocketeverything.PocketEverything;
 import fr.pocketeverything.data.CapturedEntityData;
 import fr.pocketeverything.data.CarriedChestData;
 import fr.pocketeverything.registry.ModDataComponents;
@@ -42,16 +41,13 @@ import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@EventBusSubscriber(modid = PocketEverything.MOD_ID, value = Dist.CLIENT)
-public final class ScreenshotRunner {
+public final class ScreenshotRunner implements ClientModInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScreenshotRunner.class);
     private static final String DIR_PROPERTY = "pocket_everything.screenshot.dir";
@@ -75,19 +71,20 @@ public final class ScreenshotRunner {
     private static int next;
     private static Shot current;
 
-    private ScreenshotRunner() {
+    @Override
+    public void onInitializeClient() {
+        ClientTickEvents.END_CLIENT_TICK.register(ScreenshotRunner::onClientTick);
+        HudRenderCallback.EVENT.register((graphics, tickDelta) -> onRenderGui(graphics));
     }
 
     private static boolean enabled() {
         return System.getProperty(DIR_PROPERTY) != null;
     }
 
-    @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Post event) {
+    private static void onClientTick(Minecraft mc) {
         if (!enabled() || finished) {
             return;
         }
-        Minecraft mc = Minecraft.getInstance();
         try {
             if (mc.level == null || mc.player == null) {
                 openWorld(mc);
@@ -124,13 +121,11 @@ public final class ScreenshotRunner {
         }
     }
 
-    @SubscribeEvent
-    public static void onRenderGui(RenderGuiEvent.Post event) {
+    private static void onRenderGui(GuiGraphics graphics) {
         if (!enabled() || !captureNext || current == null) {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
-        GuiGraphics graphics = event.getGuiGraphics();
         if (guiGrid) {
             drawGrid(mc, graphics);
         }
@@ -289,16 +284,16 @@ public final class ScreenshotRunner {
         }
         CompoundTag tag = new CompoundTag();
         entity.saveWithoutId(tag);
-        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY.get());
-        stack.set(ModDataComponents.CAPTURED_ENTITY.get(),
+        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY);
+        stack.set(ModDataComponents.CAPTURED_ENTITY,
                 new CapturedEntityData(BuiltInRegistries.ENTITY_TYPE.getKey(type), tag));
         STACKS.add(stack);
         NAMES.add(name);
     }
 
     private static void addChest(String name, BlockState state) {
-        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
-        stack.set(ModDataComponents.CARRIED_CHEST.get(), new CarriedChestData(state, new CompoundTag()));
+        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST);
+        stack.set(ModDataComponents.CARRIED_CHEST, new CarriedChestData(state, new CompoundTag()));
         STACKS.add(stack);
         NAMES.add(name);
     }

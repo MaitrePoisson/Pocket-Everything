@@ -12,7 +12,7 @@ import java.util.Optional;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,7 +25,7 @@ import org.joml.Quaternionf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CapturedEntityRenderer extends BlockEntityWithoutLevelRenderer {
+public final class CapturedEntityRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CapturedEntityRenderer.class);
     private static final int CACHE_SIZE = 32;
@@ -52,12 +52,8 @@ public final class CapturedEntityRenderer extends BlockEntityWithoutLevelRendere
     };
     private ClientLevel cachedLevel;
 
-    public CapturedEntityRenderer() {
-        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
-    }
-
     @Override
-    public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack poseStack,
+    public void render(ItemStack stack, ItemDisplayContext context, PoseStack poseStack,
             MultiBufferSource buffer, int packedLight, int packedOverlay) {
         CapturedEntityData data = stack.get(ModDataComponents.CAPTURED_ENTITY);
         ClientLevel level = Minecraft.getInstance().level;
