@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "${mod_group_id}",
+    "id": "${mod_id}",
+    "version": "${mod_version}",
+    "metadata": {
+      "name": "${mod_name}",
+      "description": "${mod_description}",
+      "contributors": {
+        "${mod_authors}": "Owner"
+      },
+      "license": "${mod_license}",
+      "icon": "logo.png"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "main": "fr.pocketeverything.PocketEverything",
+      "client": "fr.pocketeverything.client.PocketEverythingClient"
+    },
+    "depends": [
+      { "id": "quilt_loader", "versions": ">=${quilt_loader_version}" },
+      { "id": "minecraft", "versions": "${minecraft_version}" },
+      { "id": "java", "versions": ">=21" },
+      { "id": "fabric-api", "versions": "*" }
+    ]
+  },
+  "mixin": "pocket_everything.mixins.json",
+  "minecraft": {
+    "environment": "*"
+  }
+}

@@ -33,9 +33,9 @@ class VersionConsistencyTest {
     }
 
     @Test
-    void fabricModJsonCarriesTheModVersion() throws IOException {
+    void quiltModJsonCarriesTheModVersion() throws IOException {
         Matcher m = Pattern.compile("\"version\"\s*:\s*\"([^\"]+)\"")
-                .matcher(read("build/resources/main/fabric.mod.json"));
+                .matcher(read("build/resources/main/quilt.mod.json"));
         assertTrue(m.find());
         assertEquals(modVersion(), m.group(1));
     }

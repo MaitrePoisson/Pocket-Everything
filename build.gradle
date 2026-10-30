@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '1.11.8'
+    id 'org.quiltmc.loom' version '1.11.1'
 }
 
 version = mod_version
@@ -27,6 +27,9 @@ sourceSets {
 
 loom {
     mods {
+        pocket_everything {
+            sourceSet sourceSets.main
+        }
         pocket_everything_dev {
             sourceSet sourceSets.dev
         }
@@ -49,7 +52,7 @@ repositories {
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "org.quiltmc:quilt-loader:${quilt_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -73,8 +76,9 @@ tasks.named('test') {
 processResources {
     var replaceProperties = [
         minecraft_version    : minecraft_version,
-        fabric_loader_version: fabric_loader_version,
+        quilt_loader_version : quilt_loader_version,
         mod_id               : mod_id,
+        mod_group_id         : mod_group_id,
         mod_name             : mod_name,
         mod_version          : mod_version,
         mod_license          : mod_license,
@@ -82,7 +86,7 @@ processResources {
         mod_description      : mod_description
     ]
     inputs.properties replaceProperties
-    filesMatching(['fabric.mod.json']) {
+    filesMatching(['quilt.mod.json']) {
         expand replaceProperties
     }
 }

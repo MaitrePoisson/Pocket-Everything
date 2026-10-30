@@ -3,7 +3,7 @@
 ## Lancer
 
 - **Client de développement** : `./gradlew runClient` (JDK 21). Créer un monde créatif ou survie.
-- **Installation réelle** : Fabric Loader 0.17.3 ou plus récent et Fabric API pour Minecraft 1.21.1, puis `deliverable/pocket-everything-fabric-1.21.1.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
+- **Installation réelle** : Quilt Loader 0.30.1 ou plus récent et Fabric API pour Minecraft 1.21.1, puis `deliverable/pocket-everything-quilt-1.21.1.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
 - **Serveur dédié** : même jar dans `mods/` du serveur (`./gradlew runServer` en développement).
 - **Vérification automatique** : `bash .athanor/check.sh` (build, 42 tests JUnit, 87 GameTests, démarrage d'un serveur dédié, captures d'écran, copie du jar dans `deliverable/`).
 
@@ -90,6 +90,6 @@
 - [ ] Villageois à beaucoup d'échanges (60 offres ≈ 11 Ko) : la capture ne déconnecte personne.
 
 ### Logo
-- [ ] Écran « Mods » (Mod Menu, si installé) ou liste des mods du lanceur : Pocket-Everything affiche le logo (pixel net, non flou) à côté de son nom et de sa description.
+- [ ] Écran « Mods » (Mod Menu, si installé) ou liste des mods du lanceur Quilt : Pocket-Everything affiche le logo (pixel net, non flou) à côté de son nom et de sa description.
 - [ ] Écran des packs de ressources : l'icône du pack de Pocket-Everything est le logo.
 - [ ] README sur GitHub : logo centré en tête, sans image cassée.

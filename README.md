@@ -4,7 +4,7 @@
 
 # Pocket-Everything
 
-Mod **Fabric 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre, une Toolbox de Create ou tout autre bloc à inventaire** dans les deux mains, contenu compris, et de le reposer à l'identique.
+Mod **Quilt 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre, une Toolbox de Create ou tout autre bloc à inventaire** dans les deux mains, contenu compris, et de le reposer à l'identique.
 
 ![Une vache capturée et un coffre porté, vus à la première personne](docs/images/apercu.png)
 
@@ -12,7 +12,7 @@ Mod **Fabric 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créat
 
 - [Fonctionnalités](#fonctionnalités)
 - [Prérequis](#prérequis)
-- [Compiler et installer la version Fabric 1.21.1](#compiler-et-installer-la-version-fabric-1211)
+- [Compiler et installer la version Quilt 1.21.1](#compiler-et-installer-la-version-quilt-1211)
 - [Utilisation](#utilisation)
 - [Configuration](#configuration)
 - [Structure du projet](#structure-du-projet)
@@ -46,7 +46,7 @@ Mod **Fabric 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créat
 
 | Pour… | Il faut |
 |---|---|
-| Jouer | Minecraft Java Edition **1.21.1**, **Fabric Loader 0.17.3 ou plus récent** et **Fabric API** (testé avec 0.116.17+1.21.1), Java 21 |
+| Jouer | Minecraft Java Edition **1.21.1**, **Quilt Loader 0.30.1 ou plus récent** et **Fabric API** (testé avec 0.116.17+1.21.1), Java 21 |
 | Compiler | **JDK 21** et accès à Internet (Gradle 8.14.3 est téléchargé par le script `gradlew`) |
 | Lancer le jeu de développement | Compte Minecraft non requis : le client de développement démarre en mode hors ligne |
 
@@ -57,19 +57,19 @@ Le mod est requis des deux côtés : le client pour l'affichage, le serveur pour
 | Élément | Prise en charge |
 |---|---|
 | Minecraft 1.21.1 | Oui (seule version visée). |
-| Fabric Loader | 0.17.3 ou plus récent (borne basse `fabric_loader_version` de `gradle.properties`, injectée dans `fabric.mod.json`). |
-| Fabric API | Requise ; testée en 0.116.17+1.21.1. |
-| Quilt, NeoForge, Forge | Non : cette branche (`fabric-1.21.1`) ne vise que Fabric. La version NeoForge est sur `main`. |
+| Quilt Loader | 0.30.1 ou plus récent (borne basse `quilt_loader_version` de `gradle.properties`, injectée dans `quilt.mod.json`). |
+| Fabric API | Requise ; testée en 0.116.17+1.21.1. Quilt Loader la charge telle quelle (elle n'est pas remplacée par Quilted Fabric API, qui n'existe pas pour 1.21.1). |
+| Fabric, NeoForge, Forge | Non : cette branche (`quilt-1.21.1`) ne vise que Quilt. Les autres versions sont sur `fabric-1.21.1` et `main`. |
 
-**Message de Fabric sur une dépendance manquante :** installer Fabric API dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur avant d'y copier `pocket-everything-fabric-1.21.1.jar`.
+**Message de Quilt sur une dépendance manquante :** installer Fabric API dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur avant d'y copier `pocket-everything-quilt-1.21.1.jar`.
 
-## Compiler et installer la version Fabric 1.21.1
+## Compiler et installer la version Quilt 1.21.1
 
 ### Utiliser le mod
 
-1. Installer Fabric Loader pour Minecraft 1.21.1 (lanceur officiel ou launcher de votre choix), puis copier **Fabric API** dans `mods/`.
-2. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis copier `deliverable/pocket-everything-fabric-1.21.1.jar` dans ces deux dossiers `mods/`.
-3. Lancer le jeu ou le serveur avec le profil Fabric. Le fichier de configuration `config/pocket_everything.json` est créé au premier démarrage.
+1. Installer Quilt Loader pour Minecraft 1.21.1 (installateur officiel de Quilt ou launcher de votre choix), puis copier **Fabric API** dans `mods/`.
+2. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis copier `deliverable/pocket-everything-quilt-1.21.1.jar` dans ces deux dossiers `mods/`.
+3. Lancer le jeu ou le serveur avec le profil Quilt. Le fichier de configuration `config/pocket_everything.json` est créé au premier démarrage.
 
 ### Compiler le jar depuis les sources
 
@@ -79,7 +79,7 @@ Depuis la racine du projet (le dossier qui contient `build.gradle`) :
 ./gradlew build
 ```
 
-Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/pocket-everything-fabric-1.21.1.jar`. Schéma du nom : `pocket-everything-<loader>-<version-minecraft>.jar`, avec `mod_loader` et `minecraft_version` de `gradle.properties` (la version du mod n'y figure pas).
+Sous Windows, utiliser `gradlew.bat build` (cmd) ou `.\gradlew.bat build` (PowerShell). Le jar est produit dans `build/libs/pocket-everything-quilt-1.21.1.jar`. Schéma du nom : `pocket-everything-<loader>-<version-minecraft>.jar`, avec `mod_loader` et `minecraft_version` de `gradle.properties` (la version du mod n'y figure pas).
 
 Si plusieurs Java sont installés, `JAVA_HOME` doit pointer sur un JDK 21 ; à défaut, Gradle télécharge lui-même un JDK 21 (greffon *foojay*).
 
@@ -164,21 +164,21 @@ et pour interdire un bloc (même s'il est listé ailleurs) : `data/pocket_everyt
 ## Structure du projet
 
 ```
-build.gradle, gradle.properties   Construction (Fabric Loom) et versions du mod
+build.gradle, gradle.properties   Construction (Quilt Loom) et versions du mod
 src/main/java/fr/pocketeverything/
   PocketEverything.java                    Point d'entrée du mod (ModInitializer)
   capture/                        Capture et relâche des créatures
   chest/                          Prise et pose des coffres
   config/                         Options de configuration
   data/                           Composants de données des deux objets
-  event/                          Gestionnaires d'événements Fabric (clics, main secondaire…)
+  event/                          Gestionnaires d'événements de l'API Fabric (clics, main secondaire…)
   mixin/                          Mixins (échange de mains, pose de bras)
   item/                           Objets Captured Entity et Carried Chest
   registry/                       Enregistrement des objets et des composants
   client/                         Rendu (modèles, bras, échelle) et point d'entrée client
-src/main/resources/               Langues, modèles, étiquettes, fabric.mod.json, mixins, logo.png et pack.png
+src/main/resources/               Langues, modèles, étiquettes, quilt.mod.json, mixins, logo.png et pack.png
 src/test/                         Tests unitaires JUnit 5
-src/gametest/                     Tests de jeu (GameTests Fabric), hors du jar
+src/gametest/                     Tests de jeu (GameTests Fabric API), hors du jar
 src/dev/                          Outil de captures d'écran du client de développement
 tools/                            Générateur de la structure vide des GameTests, déclinaisons du logo (make_logo.py)
 deliverable/                      Jar prêt à installer
@@ -190,13 +190,13 @@ TEST_GUIDE.md                     Guide de test manuel
 
 | Commande | Effet |
 |---|---|
-| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/pocket-everything-fabric-1.21.1.jar` |
+| `./gradlew build` | Compile, exécute les tests unitaires, produit `build/libs/pocket-everything-quilt-1.21.1.jar` |
 | `./gradlew runClient` | Lance un client Minecraft de développement avec le mod |
 | `./gradlew runServer` | Lance un serveur de développement |
 | `./gradlew runScreenshot` | Lance le client, prend des captures dans `build/screenshots/` |
-| `./gradlew runGameTest` | Lance les GameTests sur un serveur Fabric |
+| `./gradlew runGameTest` | Lance les GameTests sur un serveur Quilt |
 
-La version du mod, celle de Minecraft, de Fabric Loader et de Fabric API sont dans `gradle.properties`.
+La version du mod, celle de Minecraft, de Quilt Loader et de Fabric API sont dans `gradle.properties`.
 
 ## Tests
 
@@ -209,7 +209,7 @@ Les tests de jeu simulent des joueurs dans un monde réel : capture, relâche, v
 
 ## Versionnage
 
-Le numéro de version est `MAJEUR.MINEUR.PATCH`. Sa **seule source de vérité** est `mod_version` dans `gradle.properties` : il est injecté dans `fabric.mod.json` (donc affiché dans la liste des mods), dans le nom du jar et dans une ligne du journal au démarrage. Le journal des changements est `CHANGELOG.md`, chaque version livrée porte un tag git `vX.Y.Z`.
+Le numéro de version est `MAJEUR.MINEUR.PATCH`. Sa **seule source de vérité** est `mod_version` dans `gradle.properties` : il est injecté dans `quilt.mod.json` (donc affiché dans la liste des mods), dans le nom du jar et dans une ligne du journal au démarrage. Le journal des changements est `CHANGELOG.md`, chaque version livrée porte un tag git `vX.Y.Z`.
 
 À chaque demande livrée, on détermine le type de changement et on incrémente, sans jamais réutiliser ni sauter un numéro :
 
