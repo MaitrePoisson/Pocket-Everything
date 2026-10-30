@@ -1,11 +1,11 @@
 package fr.pocketeverything.event;
 
-import fr.pocketeverything.PocketEverything;
 import fr.pocketeverything.capture.EntityCapturer;
 import fr.pocketeverything.data.CapturedEntityData;
 import fr.pocketeverything.registry.ModDataComponents;
 import fr.pocketeverything.registry.ModItems;
 import java.util.Optional;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -17,16 +17,18 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
 
-@EventBusSubscriber(modid = PocketEverything.MOD_ID)
 public final class ModEvents {
 
     public static final String KEY_CANNOT_CAPTURE = "message.pocket_everything.cannot_capture";
 
     private ModEvents() {
+    }
+
+    public static void register() {
+        UseEntityCallback.EVENT.register(ModEvents::onEntityInteract);
     }
 
     public static boolean isCaptureGesture(Player player, InteractionHand hand, Entity target) {
@@ -38,23 +40,15 @@ public final class ModEvents {
                 && !(target instanceof Player);
     }
 
-    @SubscribeEvent
-    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        Player player = event.getEntity();
-        Entity target = event.getTarget();
-        if (!isCaptureGesture(player, event.getHand(), target)) {
-            return;
+    public static InteractionResult onEntityInteract(Player player, Level level, InteractionHand hand, Entity target,
+            EntityHitResult hit) {
+        if (!isCaptureGesture(player, hand, target) || !EntityCapturer.canCapture(target)) {
+            return InteractionResult.PASS;
         }
-        if (!EntityCapturer.canCapture(target)) {
-            return;
+        if (player instanceof ServerPlayer serverPlayer && !level.isClientSide() && !tryCapture(serverPlayer, target)) {
+            serverPlayer.displayClientMessage(Component.translatable(KEY_CANNOT_CAPTURE), true);
         }
-        if (player instanceof ServerPlayer serverPlayer && !player.level().isClientSide()) {
-            if (!tryCapture(serverPlayer, target)) {
-                serverPlayer.displayClientMessage(Component.translatable(KEY_CANNOT_CAPTURE), true);
-            }
-        }
-        event.setCancellationResult(InteractionResult.SUCCESS);
-        event.setCanceled(true);
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean tryCapture(ServerPlayer player, Entity target) {

@@ -5,7 +5,8 @@ import fr.pocketeverything.PocketEverything;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,11 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.registries.RegisterEvent;
-
-@EventBusSubscriber(modid = PocketEverything.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public final class TestBlocks {
 
     public static Block STORAGE;
@@ -42,22 +38,14 @@ public final class TestBlocks {
         return ResourceLocation.fromNamespaceAndPath(PocketEverything.MOD_ID, path);
     }
 
-    @SubscribeEvent
-    public static void register(RegisterEvent event) {
-        event.register(Registries.BLOCK, helper -> {
-            STORAGE = new StorageBlock(false);
-            HANDLER = new StorageBlock(true);
-            VAULT = new StorageBlock(false);
-            helper.register(id("test_storage"), STORAGE);
-            helper.register(id("test_handler"), HANDLER);
-            helper.register(id("test_vault"), VAULT);
-        });
-        event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
-            CONTAINER_TYPE = BlockEntityType.Builder.of(ContainerEntity::new, STORAGE, VAULT).build(null);
-            HANDLER_TYPE = BlockEntityType.Builder.of(HandlerEntity::new, HANDLER).build(null);
-            helper.register(id("test_container"), CONTAINER_TYPE);
-            helper.register(id("test_handler"), HANDLER_TYPE);
-        });
+    public static void register() {
+        STORAGE = Registry.register(BuiltInRegistries.BLOCK, id("test_storage"), new StorageBlock(false));
+        HANDLER = Registry.register(BuiltInRegistries.BLOCK, id("test_handler"), new StorageBlock(true));
+        VAULT = Registry.register(BuiltInRegistries.BLOCK, id("test_vault"), new StorageBlock(false));
+        CONTAINER_TYPE = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id("test_container"),
+                BlockEntityType.Builder.of(ContainerEntity::new, STORAGE, VAULT).build(null));
+        HANDLER_TYPE = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id("test_handler"),
+                BlockEntityType.Builder.of(HandlerEntity::new, HANDLER).build(null));
     }
 
     public static final class StorageBlock extends BaseEntityBlock {

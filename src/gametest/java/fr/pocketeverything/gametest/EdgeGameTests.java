@@ -17,18 +17,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class EdgeGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
 
-    private EdgeGameTests() {
+    public EdgeGameTests() {
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void secondCaptureOfSameEntityGivesNothing(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -39,7 +36,7 @@ public final class EdgeGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void bossesAndVehiclesAreBlacklisted(GameTestHelper helper) {
         for (EntityType<?> type : List.of(EntityType.ENDER_DRAGON, EntityType.WITHER, EntityType.BOAT,
                 EntityType.MINECART, EntityType.ITEM_FRAME, EntityType.PAINTING, EntityType.LEASH_KNOT)) {
@@ -49,7 +46,7 @@ public final class EdgeGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void babyAnimalStaysBaby(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         cow.setAge(-6000);
@@ -63,7 +60,7 @@ public final class EdgeGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void fullInventoryDropsTheCapturedItem(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -76,9 +73,9 @@ public final class EdgeGameTests {
         helper.assertTrue(ModEvents.tryCapture(player, cow), "la capture doit réussir même inventaire plein");
         helper.assertTrue(cow.isRemoved(), "la vache doit disparaître");
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class,
-                player.getBoundingBox().inflate(3.0), item -> item.getItem().is(ModItems.CAPTURED_ENTITY.get())
+                player.getBoundingBox().inflate(3.0), item -> item.getItem().is(ModItems.CAPTURED_ENTITY)
                         && item.position().distanceToSqr(player.getEyePosition()) < 1.0);
-        boolean inInventory = player.getInventory().items.stream().anyMatch(s -> s.is(ModItems.CAPTURED_ENTITY.get()));
+        boolean inInventory = player.getInventory().items.stream().anyMatch(s -> s.is(ModItems.CAPTURED_ENTITY));
         helper.assertTrue(drops.size() == 1 || inInventory, "l'item capturé ne doit jamais être perdu");
         helper.succeed();
     }

@@ -30,17 +30,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class ChestEdgeGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
     private static final BlockPos SPOT = new BlockPos(2, 2, 2);
     private static final BlockPos TARGET = new BlockPos(5, 2, 5);
 
-    private ChestEdgeGameTests() {
+    public ChestEdgeGameTests() {
     }
 
     private static ChestBlockEntity filledChest(GameTestHelper helper, BlockPos at, BlockState state) {
@@ -57,8 +54,8 @@ public final class ChestEdgeGameTests {
     }
 
     private static ItemStack carried(CarriedChestData data) {
-        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
-        stack.set(ModDataComponents.CARRIED_CHEST.get(), data);
+        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST);
+        stack.set(ModDataComponents.CARRIED_CHEST, data);
         return stack;
     }
 
@@ -66,10 +63,10 @@ public final class ChestEdgeGameTests {
         int count = 0;
         for (List<ItemStack> list : List.of(player.getInventory().items, player.getInventory().offhand, player.getInventory().armor)) {
             for (ItemStack stack : list) {
-                count += stack.is(ModItems.CARRIED_CHEST.get()) ? 1 : 0;
+                count += stack.is(ModItems.CARRIED_CHEST) ? 1 : 0;
             }
         }
-        return count + (player.containerMenu.getCarried().is(ModItems.CARRIED_CHEST.get()) ? 1 : 0);
+        return count + (player.containerMenu.getCarried().is(ModItems.CARRIED_CHEST) ? 1 : 0);
     }
 
     private static int total(CompoundTag chest, net.minecraft.world.item.Item item) {
@@ -88,7 +85,7 @@ public final class ChestEdgeGameTests {
         helper.assertTrue(drops.isEmpty(), "aucun objet ne devait être lâché au sol (" + drops.size() + ")");
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE, timeoutTicks = 120)
+    @GameTest(template = TEMPLATE, timeoutTicks = 120)
     public static void trappedChestWithComparatorAndHopperKeepsEverything(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ServerPlayer viewer = helper.makeMockServerPlayerInLevel();
@@ -124,7 +121,7 @@ public final class ChestEdgeGameTests {
         });
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void doubleChestViewerIsClosedAndCursorIsKept(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ServerPlayer viewer = helper.makeMockServerPlayerInLevel();
@@ -147,7 +144,7 @@ public final class ChestEdgeGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void clickingTheCarriedChestNeverDuplicatesIt(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);
@@ -172,7 +169,7 @@ public final class ChestEdgeGameTests {
         helper.assertTrue(carriedCount(player) == 1, "après ramassage au curseur : un seul coffre (" + carriedCount(player) + ")");
         menu.clicked(0, 0, ClickType.PICKUP, player);
         helper.assertTrue(carriedCount(player) == 0, "déposé dans le coffre : plus rien chez le joueur (" + carriedCount(player) + ")");
-        helper.assertTrue(other.getItem(0).is(ModItems.CARRIED_CHEST.get()), "le coffre porté doit être dans le coffre");
+        helper.assertTrue(other.getItem(0).is(ModItems.CARRIED_CHEST), "le coffre porté doit être dans le coffre");
         menu.clicked(0, 0, ClickType.QUICK_MOVE, player);
         helper.assertTrue(carriedCount(player) == 1 && other.getItem(0).isEmpty(), "le shift-clic ne doit pas dupliquer");
         player.closeContainer();
@@ -181,7 +178,7 @@ public final class ChestEdgeGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void placingNextToAChestMergesWithoutLosingContents(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);
@@ -205,7 +202,7 @@ public final class ChestEdgeGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void placingBesideAnExistingChestKeepsBothContents(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);

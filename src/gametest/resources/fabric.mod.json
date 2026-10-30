@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "pocket_everything_gametest",
+  "version": "1.0.0",
+  "name": "Pocket-Everything GameTests",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["fr.pocketeverything.gametest.GameTestInit"],
+    "fabric-gametest": [
+      "fr.pocketeverything.gametest.CaptureGameTests",
+      "fr.pocketeverything.gametest.ItemGameTests",
+      "fr.pocketeverything.gametest.EventGameTests",
+      "fr.pocketeverything.gametest.VillagerGameTests",
+      "fr.pocketeverything.gametest.RobustnessGameTests",
+      "fr.pocketeverything.gametest.EdgeGameTests",
+      "fr.pocketeverything.gametest.PolishGameTests",
+      "fr.pocketeverything.gametest.ChestGameTests",
+      "fr.pocketeverything.gametest.ChestEdgeGameTests",
+      "fr.pocketeverything.gametest.StorageCarrierGameTests"
+    ]
+  },
+  "depends": {
+    "pocket_everything": "*"
+  }
+}

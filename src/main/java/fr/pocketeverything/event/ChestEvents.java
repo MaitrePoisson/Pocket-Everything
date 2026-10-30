@@ -1,32 +1,42 @@
 package fr.pocketeverything.event;
 
-import fr.pocketeverything.PocketEverything;
 import fr.pocketeverything.chest.ChestCarrier;
 import fr.pocketeverything.config.PocketEverythingConfig;
 import fr.pocketeverything.data.CarriedChestData;
 import fr.pocketeverything.registry.ModDataComponents;
 import fr.pocketeverything.registry.ModItems;
 import java.util.Optional;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraft.world.phys.BlockHitResult;
 
-@EventBusSubscriber(modid = PocketEverything.MOD_ID)
 public final class ChestEvents {
 
     public static final String KEY_HANDS = "message.pocket_everything.cannot_carry_hands";
 
     private ChestEvents() {
+    }
+
+    public static void register() {
+        UseBlockCallback.EVENT.register(ChestEvents::onUseBlock);
+        UseItemCallback.EVENT.register(ChestEvents::onUseItem);
+        ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(ChestEvents::onPlayerTick));
+        ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> protectDroppedChest(entity));
     }
 
     public static boolean isCarrying(Player player) {
@@ -43,30 +53,25 @@ public final class ChestEvents {
                 && state.is(ChestCarrier.CARRYABLE);
     }
 
-    @SubscribeEvent
-    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        Player player = event.getEntity();
-        if (event.getHand() == InteractionHand.OFF_HAND && isCarrying(player)) {
-            event.setCancellationResult(InteractionResult.FAIL);
-            event.setCanceled(true);
-            return;
+    public static InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hit) {
+        if (hand == InteractionHand.OFF_HAND && isCarrying(player)) {
+            return InteractionResult.FAIL;
         }
-        if (!isPickupGesture(player, event.getHand(), player.level().getBlockState(event.getPos()))) {
-            return;
+        if (!isPickupGesture(player, hand, level.getBlockState(hit.getBlockPos()))) {
+            return InteractionResult.PASS;
         }
-        if (player instanceof ServerPlayer serverPlayer && player.level() instanceof ServerLevel level
-                && !pickUp(serverPlayer, level, event)) {
+        if (player instanceof ServerPlayer serverPlayer && level instanceof ServerLevel serverLevel
+                && !pickUp(serverPlayer, serverLevel, hit.getBlockPos())) {
             serverPlayer.displayClientMessage(Component.translatable(KEY_HANDS), true);
         }
-        event.setCancellationResult(InteractionResult.SUCCESS);
-        event.setCanceled(true);
+        return InteractionResult.SUCCESS;
     }
 
-    private static boolean pickUp(ServerPlayer player, ServerLevel level, PlayerInteractEvent.RightClickBlock event) {
+    private static boolean pickUp(ServerPlayer player, ServerLevel level, BlockPos pos) {
         if (!player.getOffhandItem().isEmpty()) {
             return false;
         }
-        Optional<CarriedChestData> data = ChestCarrier.pickUp(player, level, event.getPos());
+        Optional<CarriedChestData> data = ChestCarrier.pickUp(player, level, pos);
         data.ifPresent(carried -> {
             ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST);
             stack.set(ModDataComponents.CARRIED_CHEST, carried);
@@ -75,24 +80,19 @@ public final class ChestEvents {
         return true;
     }
 
-    @SubscribeEvent
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (event.getHand() == InteractionHand.OFF_HAND && isCarrying(event.getEntity())) {
-            event.setCancellationResult(InteractionResult.FAIL);
-            event.setCanceled(true);
+    public static InteractionResultHolder<ItemStack> onUseItem(Player player, Level level, InteractionHand hand) {
+        if (hand == InteractionHand.OFF_HAND && isCarrying(player)) {
+            return InteractionResultHolder.fail(player.getItemInHand(hand));
         }
+        return InteractionResultHolder.pass(player.getItemInHand(hand));
     }
 
-    @SubscribeEvent
-    public static void onSwapHands(LivingSwapItemsEvent.Hands event) {
-        if (event.getEntity() instanceof Player player && isCarrying(player)) {
-            event.setCanceled(true);
-        }
+    public static boolean cancelsSwapHands(Player player) {
+        return isCarrying(player);
     }
 
-    @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || player.getOffhandItem().isEmpty()
+    public static void onPlayerTick(ServerPlayer player) {
+        if (player.getOffhandItem().isEmpty()
                 || !isCarrying(player) && !player.getOffhandItem().is(ModItems.CARRIED_CHEST)) {
             return;
         }
@@ -100,6 +100,13 @@ public final class ChestEvents {
         player.getInventory().offhand.set(0, ItemStack.EMPTY);
         if (!player.getInventory().add(other)) {
             player.drop(other, false);
+        }
+    }
+
+    public static void protectDroppedChest(Entity entity) {
+        if (entity instanceof ItemEntity item && item.getItem().is(ModItems.CARRIED_CHEST)) {
+            item.setInvulnerable(true);
+            item.setUnlimitedLifetime();
         }
     }
 }

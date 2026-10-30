@@ -19,7 +19,6 @@ java {
 }
 
 sourceSets.main.java.exclude(
-    'fr/pocketeverything/event/**',
     'fr/pocketeverything/client/*ClientExtensions.java',
     'fr/pocketeverything/client/ClientSetup.java',
     'fr/pocketeverything/client/*Renderer.java'
@@ -72,4 +71,15 @@ processResources {
 
 tasks.named('remapJar') {
     archiveVersion = ''
+}
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'pocket_everything_gametest'
+        enableGameTests = true
+        enableClientGameTests = false
+        eula = true
+        clearRunDirectory = true
+    }
 }

@@ -10,6 +10,10 @@ import fr.pocketeverything.registry.ModItems;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -48,21 +52,14 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class ChestGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
     private static final BlockPos SPOT = new BlockPos(2, 2, 2);
     private static final BlockPos TARGET = new BlockPos(5, 2, 5);
 
-    private ChestGameTests() {
+    public ChestGameTests() {
     }
 
     private static void fill(ChestBlockEntity chest) {
@@ -121,22 +118,22 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void simpleChestRoundTrip(GameTestHelper helper) {
         roundTrip(helper, Blocks.CHEST.defaultBlockState());
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void trappedChestRoundTrip(GameTestHelper helper) {
         roundTrip(helper, Blocks.TRAPPED_CHEST.defaultBlockState());
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void orientedChestRoundTrip(GameTestHelper helper) {
         roundTrip(helper, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.EAST));
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void doubleChestHalfBecomesSingle(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         BlockPos left = SPOT;
@@ -160,7 +157,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void underwaterChestKeepsWater(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         helper.setBlock(TARGET, Blocks.WATER.defaultBlockState());
@@ -178,7 +175,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void lootTableAndLockSurviveTheTrip(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         helper.setBlock(SPOT, Blocks.CHEST.defaultBlockState());
@@ -195,7 +192,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void lockedChestIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -210,7 +207,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void occupiedPlaceKeepsTheChestData(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -224,7 +221,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void viewersAreKickedOutOnPickup(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ServerPlayer viewer = helper.makeMockServerPlayerInLevel();
@@ -237,13 +234,13 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void itemPlacesTheChestAndIsConsumed(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
         CompoundTag before = contentsOf(helper, SPOT);
-        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
-        stack.set(ModDataComponents.CARRIED_CHEST.get(), take(helper, player, SPOT));
+        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST);
+        stack.set(ModDataComponents.CARRIED_CHEST, take(helper, player, SPOT));
         helper.assertTrue(stack.getMaxStackSize() == 1, "l'objet doit être non empilable");
         BlockPos ground = helper.absolutePos(TARGET.below());
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(ground), Direction.UP, ground, false);
@@ -255,10 +252,10 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void itemWithoutComponentIsHarmless(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
-        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
+        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST);
         BlockPos ground = helper.absolutePos(TARGET.below());
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(ground), Direction.UP, ground, false);
         InteractionResult result = stack.getItem()
@@ -278,13 +275,13 @@ public final class ChestGameTests {
     }
 
     static ItemStack carried(CarriedChestData data) {
-        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST.get());
-        stack.set(ModDataComponents.CARRIED_CHEST.get(), data);
+        ItemStack stack = new ItemStack(ModItems.CARRIED_CHEST);
+        stack.set(ModDataComponents.CARRIED_CHEST, data);
         return stack;
     }
 
     static void assertCarrying(GameTestHelper helper, ServerPlayer player, boolean expected) {
-        helper.assertTrue(player.getMainHandItem().is(ModItems.CARRIED_CHEST.get()) == expected,
+        helper.assertTrue(player.getMainHandItem().is(ModItems.CARRIED_CHEST) == expected,
                 expected ? "le coffre aurait dû être en main" : "aucun coffre ne devait être en main");
     }
 
@@ -298,7 +295,7 @@ public final class ChestGameTests {
         helper.assertTrue(helper.getBlockState(SPOT).isAir(), "le coffre aurait dû disparaître");
         helper.assertTrue(player.containerMenu == player.inventoryMenu, "le coffre ne doit pas s'ouvrir");
         assertCarrying(helper, player, true);
-        helper.assertTrue(player.getMainHandItem().get(ModDataComponents.CARRIED_CHEST.get()).blockEntity().equals(before),
+        helper.assertTrue(player.getMainHandItem().get(ModDataComponents.CARRIED_CHEST).blockEntity().equals(before),
                 "le contenu porté doit être identique");
         assertNothingDropped(helper);
         click(helper, player, InteractionHand.MAIN_HAND, TARGET.below());
@@ -308,17 +305,17 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void gestureTakesAndPlacesInCreative(GameTestHelper helper) {
         takeAndPlaceEndToEnd(helper, GameType.CREATIVE);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void gestureTakesAndPlacesInSurvival(GameTestHelper helper) {
         takeAndPlaceEndToEnd(helper, GameType.SURVIVAL);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void adventureModeCannotTake(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.ADVENTURE);
@@ -330,7 +327,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void gestureNeedsSneakAndFreeHands(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -352,45 +349,41 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void configDisablesTheGesture(GameTestHelper helper) {
-        if (!PocketEverythingConfig.SPEC.isLoaded()) {
-            helper.succeed();
-            return;
-        }
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
         player.setShiftKeyDown(true);
-        PocketEverythingConfig.CARRY_CHESTS_ENABLED.set(false);
+        PocketEverythingConfig.set(new PocketEverythingConfig.Values(true, Set.of(), false));
         try {
             click(helper, player, InteractionHand.MAIN_HAND, SPOT);
         } finally {
-            PocketEverythingConfig.CARRY_CHESTS_ENABLED.set(true);
+            PocketEverythingConfig.set(PocketEverythingConfig.DEFAULTS);
         }
         helper.assertTrue(helper.getBlockState(SPOT).is(Blocks.CHEST), "config désactivée : le coffre doit rester");
         assertCarrying(helper, player, false);
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void offHandIsBlockedWhileCarrying(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
         CarriedChestData data = take(helper, player, SPOT);
         player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
         player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.COBBLESTONE, 5));
-        helper.assertTrue(NeoForge.EVENT_BUS.post(new LivingSwapItemsEvent.Hands(player)).isCanceled(),
+        helper.assertTrue(ChestEvents.cancelsSwapHands(player),
                 "l'échange des mains doit être annulé");
         helper.assertTrue(!click(helper, player, InteractionHand.OFF_HAND, TARGET.below()).consumesAction()
                 && helper.getBlockState(TARGET).isAir(), "la pose depuis la main secondaire doit être refusée");
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        ChestEvents.onPlayerTick(player);
         helper.assertTrue(player.getOffhandItem().isEmpty(), "la main secondaire doit être vidée");
         helper.assertTrue(player.getInventory().contains(new ItemStack(Items.COBBLESTONE)), "l'objet doit retourner à l'inventaire");
         assertCarrying(helper, player, true);
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void nestedCarriedChestIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT.east(2), Blocks.CHEST.defaultBlockState());
@@ -403,7 +396,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void droppedChestIsIndestructible(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -415,13 +408,13 @@ public final class ChestGameTests {
             helper.assertTrue(drop.isInvulnerable() && !drop.hurt(helper.getLevel().damageSources().explosion(null), 100.0F),
                     "l'objet lâché doit être invulnérable");
             helper.assertTrue(drop.getAge() < 0, "l'objet lâché ne doit pas disparaître avec le temps");
-            helper.assertTrue(!drop.isRemoved() && data.equals(drop.getItem().get(ModDataComponents.CARRIED_CHEST.get())),
+            helper.assertTrue(!drop.isRemoved() && data.equals(drop.getItem().get(ModDataComponents.CARRIED_CHEST)),
                     "le contenu doit rester intact");
             helper.succeed();
         });
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void nameAndTooltipDescribeTheChest(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -441,7 +434,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void playerInventoryNbtRoundTrip(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -451,13 +444,13 @@ public final class ChestGameTests {
         Inventory reloaded = new Inventory(player);
         reloaded.load(saved);
         ItemStack back = reloaded.getItem(player.getInventory().selected);
-        helper.assertTrue(back.is(ModItems.CARRIED_CHEST.get()), "l'objet doit revenir à la même case après rechargement");
-        helper.assertTrue(data.equals(back.get(ModDataComponents.CARRIED_CHEST.get())),
+        helper.assertTrue(back.is(ModItems.CARRIED_CHEST), "l'objet doit revenir à la même case après rechargement");
+        helper.assertTrue(data.equals(back.get(ModDataComponents.CARRIED_CHEST)),
                 "le contenu doit survivre à la sauvegarde NBT du joueur");
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void deathDropIsRecoverableByAnotherPlayer(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ServerPlayer rescuer = helper.makeMockServerPlayerInLevel();
@@ -466,7 +459,7 @@ public final class ChestGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
         player.die(helper.getLevel().damageSources().generic());
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(8.0),
-                drop -> drop.tickCount < 20 && drop.getItem().is(ModItems.CARRIED_CHEST.get()));
+                drop -> drop.tickCount < 20 && drop.getItem().is(ModItems.CARRIED_CHEST));
         helper.assertTrue(drops.size() == 1, "le coffre porté doit être lâché à la mort (" + drops.size() + ")");
         ItemEntity drop = drops.get(0);
         helper.runAfterDelay(3, () -> {
@@ -476,14 +469,14 @@ public final class ChestGameTests {
             helper.assertTrue(drop.isRemoved(), "l'objet doit être ramassé");
             boolean found = false;
             for (ItemStack stack : rescuer.getInventory().items) {
-                found |= data.equals(stack.get(ModDataComponents.CARRIED_CHEST.get()));
+                found |= data.equals(stack.get(ModDataComponents.CARRIED_CHEST));
             }
             helper.assertTrue(found, "le sauveteur doit récupérer le contenu intact");
             helper.succeed();
         });
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void chestSurvivesDimensionChange(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -509,9 +502,9 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void runsOnDedicatedServerWithoutClientClasses(GameTestHelper helper) {
-        helper.assertTrue(FMLEnvironment.dist.isDedicatedServer(), "ce test doit tourner sur un serveur dédié");
+        helper.assertTrue(FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER, "ce test doit tourner sur un serveur dédié");
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
         ItemStack stack = carried(take(helper, player, SPOT));
@@ -519,7 +512,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void vanillaSavedChestIsTakenWithoutMigration(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         helper.setBlock(SPOT, Blocks.CHEST.defaultBlockState());
@@ -541,7 +534,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void repeatedChainsNeitherLoseNorDuplicate(GameTestHelper helper) {
         ServerPlayer first = helper.makeMockServerPlayerInLevel();
         ServerPlayer second = helper.makeMockServerPlayerInLevel();
@@ -570,7 +563,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void bulkyChestFitsTheNetworkBudget(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ChestBlockEntity chest = filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -593,12 +586,12 @@ public final class ChestGameTests {
         System.out.println("POCKET_EVERYTHING_NETWORK_SIZE carriedChest bytes=" + size);
         helper.assertTrue(size < 2_000_000, "coffre trop lourd pour le réseau : " + size);
         ItemStack decoded = ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer);
-        helper.assertTrue(stack.get(ModDataComponents.CARRIED_CHEST.get()).equals(decoded.get(ModDataComponents.CARRIED_CHEST.get())),
+        helper.assertTrue(stack.get(ModDataComponents.CARRIED_CHEST).equals(decoded.get(ModDataComponents.CARRIED_CHEST)),
                 "le décodage réseau doit redonner le même contenu");
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void nestedChestInsideShulkerIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT.east(2), Blocks.CHEST.defaultBlockState());
@@ -613,7 +606,7 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void oversizedChestIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ChestBlockEntity chest = filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
@@ -630,14 +623,32 @@ public final class ChestGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
+    public static void swapHandsPacketIsCancelledWhileCarrying(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
+        CarriedChestData data = take(helper, player, SPOT);
+        player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
+        helper.assertTrue(player.connection != null, "le joueur de test doit avoir une connexion");
+        player.connection.handlePlayerAction(new ServerboundPlayerActionPacket(
+                ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
+        helper.assertTrue(player.getOffhandItem().isEmpty(), "le coffre ne doit pas passer en main secondaire");
+        assertCarrying(helper, player, true);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COBBLESTONE));
+        player.connection.handlePlayerAction(new ServerboundPlayerActionPacket(
+                ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
+        helper.assertTrue(player.getOffhandItem().is(Items.COBBLESTONE), "l'échange normal doit rester possible");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
     public static void carriedChestInOffHandGoesBackToInventory(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         filledChest(helper, SPOT, Blocks.CHEST.defaultBlockState());
         player.setItemInHand(InteractionHand.OFF_HAND, carried(take(helper, player, SPOT)));
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        ChestEvents.onPlayerTick(player);
         helper.assertTrue(player.getOffhandItem().isEmpty(), "la main secondaire doit être vidée");
-        helper.assertTrue(player.getInventory().hasAnyMatching(s -> s.is(ModItems.CARRIED_CHEST.get())), "le coffre doit rester dans l'inventaire");
+        helper.assertTrue(player.getInventory().hasAnyMatching(s -> s.is(ModItems.CARRIED_CHEST)), "le coffre doit rester dans l'inventaire");
         helper.succeed();
     }
 }

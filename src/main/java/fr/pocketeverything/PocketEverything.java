@@ -1,5 +1,8 @@
 package fr.pocketeverything;
 
+import fr.pocketeverything.config.PocketEverythingConfig;
+import fr.pocketeverything.event.ChestEvents;
+import fr.pocketeverything.event.ModEvents;
 import fr.pocketeverything.registry.ModDataComponents;
 import fr.pocketeverything.registry.ModItems;
 import net.fabricmc.api.ModInitializer;
@@ -17,7 +20,10 @@ public final class PocketEverything implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Pocket-Everything {}",
                 FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion());
+        PocketEverythingConfig.load();
         ModDataComponents.register();
         ModItems.register();
+        ModEvents.register();
+        ChestEvents.register();
     }
 }

@@ -26,15 +26,12 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class ItemGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
 
-    private ItemGameTests() {
+    public ItemGameTests() {
     }
 
     private static UseOnContext contextOn(GameTestHelper helper, ServerPlayer player, ItemStack stack) {
@@ -43,7 +40,7 @@ public final class ItemGameTests {
         return new UseOnContext(helper.getLevel(), player, InteractionHand.MAIN_HAND, stack, hit);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void capturedItemReleasesAndIsConsumed(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         cow.setCustomName(Component.literal("Marguerite"));
@@ -52,8 +49,8 @@ public final class ItemGameTests {
         CapturedEntityData data = EntityCapturer.capture(player, cow).orElse(null);
         helper.assertTrue(data != null, "la vache aurait dû être capturée");
 
-        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY.get());
-        stack.set(ModDataComponents.CAPTURED_ENTITY.get(), data);
+        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY);
+        stack.set(ModDataComponents.CAPTURED_ENTITY, data);
         helper.assertTrue(stack.getMaxStackSize() == 1, "l'item doit être non empilable");
 
         Component name = stack.getHoverName();
@@ -84,13 +81,13 @@ public final class ItemGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void failedReleaseKeepsTheItem(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         CapturedEntityData unknown = new CapturedEntityData(
                 ResourceLocation.fromNamespaceAndPath("pocket_everything", "does_not_exist"), new CompoundTag());
-        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY.get());
-        stack.set(ModDataComponents.CAPTURED_ENTITY.get(), unknown);
+        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY);
+        stack.set(ModDataComponents.CAPTURED_ENTITY, unknown);
         InteractionResult result = stack.getItem().useOn(contextOn(helper, player, stack));
         helper.assertTrue(!result.consumesAction(), "un échec ne doit pas consommer l'action");
         helper.assertTrue(stack.getCount() == 1, "l'item doit rester si le spawn échoue");
@@ -100,10 +97,10 @@ public final class ItemGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void itemWithoutComponentIsHarmless(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
-        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY.get());
+        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY);
         InteractionResult result = stack.getItem().useOn(contextOn(helper, player, stack));
         helper.assertTrue(result == InteractionResult.PASS, "sans composant, useOn doit passer");
         helper.assertTrue(stack.getCount() == 1, "sans composant, rien ne doit être consommé");

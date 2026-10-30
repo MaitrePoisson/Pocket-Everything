@@ -12,6 +12,7 @@ import fr.pocketeverything.data.CarriedChestData;
 import fr.pocketeverything.registry.ModDataComponents;
 import fr.pocketeverything.registry.ModItems;
 import java.util.List;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -35,20 +36,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class StorageCarrierGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
     private static final BlockPos SPOT = new BlockPos(2, 2, 2);
     private static final BlockPos TARGET = new BlockPos(5, 2, 5);
 
-    private StorageCarrierGameTests() {
+    public StorageCarrierGameTests() {
     }
 
     private static ItemStack sword(int slot) {
@@ -87,7 +82,7 @@ public final class StorageCarrierGameTests {
     private static int countCarriedStacks(ServerPlayer player) {
         int total = 0;
         for (ItemStack stack : player.getInventory().items) {
-            total += stack.is(ModItems.CARRIED_CHEST.get()) ? stack.getCount() : 0;
+            total += stack.is(ModItems.CARRIED_CHEST) ? stack.getCount() : 0;
         }
         return total;
     }
@@ -109,17 +104,17 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void containerBlockRoundTrip(GameTestHelper helper) {
         roundTrip(helper, TestBlocks.STORAGE);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void nbtOnlyBlockRoundTrip(GameTestHelper helper) {
         roundTrip(helper, TestBlocks.HANDLER);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void gestureNeverDuplicates(GameTestHelper helper) {
         for (Block block : List.of(TestBlocks.STORAGE, TestBlocks.HANDLER)) {
             ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -142,7 +137,7 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void lockedBlockIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         fillAt(helper, SPOT, TestBlocks.STORAGE);
@@ -156,24 +151,22 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    public static final class Veto {
-        @SubscribeEvent
-        public void onBreak(BlockEvent.BreakEvent event) {
-            event.setCanceled(true);
-        }
+    private static volatile boolean vetoBreaks;
+
+    static {
+        PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, entity) -> !vetoBreaks);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void cancelledBreakEventIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         fillAt(helper, SPOT, TestBlocks.STORAGE);
         CompoundTag before = contentsOf(helper, SPOT);
-        Veto veto = new Veto();
-        NeoForge.EVENT_BUS.register(veto);
+        vetoBreaks = true;
         try {
             helper.assertTrue(take(helper, player, SPOT) == null, "un BreakEvent annulé doit refuser la prise");
         } finally {
-            NeoForge.EVENT_BUS.unregister(veto);
+            vetoBreaks = false;
         }
         helper.assertTrue(helper.getBlockState(SPOT).is(TestBlocks.STORAGE) && contentsOf(helper, SPOT).equals(before),
                 "le bloc protégé doit rester intact");
@@ -181,7 +174,7 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void adventureModeIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.ADVENTURE);
@@ -191,7 +184,7 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void excludedBlockIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         fillAt(helper, SPOT, TestBlocks.VAULT);
@@ -205,7 +198,7 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void blockOutsideTheTagIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         helper.setBlock(SPOT, Blocks.FURNACE);
@@ -216,7 +209,7 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void nestedCarriedBlockIsRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         fillAt(helper, SPOT.east(2), TestBlocks.HANDLER);
@@ -238,7 +231,7 @@ public final class StorageCarrierGameTests {
         return box;
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void viewersAreClosedOnPickup(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ServerPlayer viewer = helper.makeMockServerPlayerInLevel();
@@ -260,7 +253,7 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void deathDropIsRecoverable(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         ServerPlayer rescuer = helper.makeMockServerPlayerInLevel();
@@ -269,7 +262,7 @@ public final class StorageCarrierGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, carried(data));
         player.die(helper.getLevel().damageSources().generic());
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(8.0),
-                drop -> drop.tickCount < 20 && drop.getItem().is(ModItems.CARRIED_CHEST.get()));
+                drop -> drop.tickCount < 20 && drop.getItem().is(ModItems.CARRIED_CHEST));
         helper.assertTrue(drops.size() == 1, "le bloc porté doit être lâché à la mort (" + drops.size() + ")");
         ItemEntity drop = drops.get(0);
         helper.runAfterDelay(3, () -> {
@@ -278,14 +271,14 @@ public final class StorageCarrierGameTests {
             helper.assertTrue(drop.isRemoved(), "l'objet doit être ramassé");
             boolean found = false;
             for (ItemStack stack : rescuer.getInventory().items) {
-                found |= data.equals(stack.get(ModDataComponents.CARRIED_CHEST.get()));
+                found |= data.equals(stack.get(ModDataComponents.CARRIED_CHEST));
             }
             helper.assertTrue(found, "le sauveteur doit récupérer le contenu intact");
             helper.succeed();
         });
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void blockSurvivesDimensionChange(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         fillAt(helper, SPOT, TestBlocks.HANDLER);
@@ -311,7 +304,7 @@ public final class StorageCarrierGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void mixedChainNeitherLosesNorDuplicates(GameTestHelper helper) {
         ServerPlayer first = helper.makeMockServerPlayerInLevel();
         ServerPlayer second = helper.makeMockServerPlayerInLevel();

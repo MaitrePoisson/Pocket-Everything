@@ -14,18 +14,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class CaptureGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
 
-    private CaptureGameTests() {
+    public CaptureGameTests() {
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void cowCaptureThenRelease(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         cow.setCustomName(Component.literal("Marguerite"));
@@ -58,7 +55,7 @@ public final class CaptureGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void blacklistedEntitiesAreRefused(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         Entity stand = helper.spawn(EntityType.ARMOR_STAND, 3, 1, 3);
@@ -69,7 +66,7 @@ public final class CaptureGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void invalidDataFailsCleanly(GameTestHelper helper) {
         Vec3 target = helper.absoluteVec(new Vec3(4.5, 1.0, 4.5));
         CapturedEntityData unknown = new CapturedEntityData(

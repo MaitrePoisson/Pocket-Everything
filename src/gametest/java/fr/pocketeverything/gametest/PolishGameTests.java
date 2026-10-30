@@ -33,21 +33,17 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class PolishGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
 
-    private PolishGameTests() {
+    public PolishGameTests() {
     }
 
     private static ItemStack stackOf(CapturedEntityData data) {
-        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY.get());
-        stack.set(ModDataComponents.CAPTURED_ENTITY.get(), data);
+        ItemStack stack = new ItemStack(ModItems.CAPTURED_ENTITY);
+        stack.set(ModDataComponents.CAPTURED_ENTITY, data);
         return stack;
     }
 
@@ -58,7 +54,7 @@ public final class PolishGameTests {
         return stack.getItem().useOn(new UseOnContext(helper.getLevel(), player, InteractionHand.MAIN_HAND, stack, hit));
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void creativeFullInventoryDropsTheCapturedItem(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -70,13 +66,13 @@ public final class PolishGameTests {
         player.getInventory().selected = 0;
         helper.assertTrue(ModEvents.tryCapture(player, cow), "la capture doit réussir");
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class,
-                player.getBoundingBox().inflate(3.0), item -> item.getItem().is(ModItems.CAPTURED_ENTITY.get())
+                player.getBoundingBox().inflate(3.0), item -> item.getItem().is(ModItems.CAPTURED_ENTITY)
                         && item.position().distanceToSqr(player.getEyePosition()) < 1.0);
         helper.assertTrue(drops.size() == 1, "l'item doit être lâché au sol, jamais détruit");
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void releaseUnderBlockNeverSuffocates(GameTestHelper helper) {
         IronGolem golem = helper.spawnWithNoFreeWill(EntityType.IRON_GOLEM, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -105,7 +101,7 @@ public final class PolishGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void transientCombatStateIsNotCarried(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         cow.fallDistance = 40.0F;
@@ -123,7 +119,7 @@ public final class PolishGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void othersTamedPetCannotBeCaptured(GameTestHelper helper) {
         Wolf wolf = helper.spawnWithNoFreeWill(EntityType.WOLF, 2, 1, 2);
         ServerPlayer owner = helper.makeMockServerPlayerInLevel();
@@ -135,7 +131,7 @@ public final class PolishGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void nonLivingEntitiesAreRefused(GameTestHelper helper) {
         for (EntityType<?> type : List.of(EntityType.ITEM, EntityType.TNT, EntityType.EXPERIENCE_ORB,
                 EntityType.END_CRYSTAL, EntityType.MARKER, EntityType.TEXT_DISPLAY)) {
@@ -145,7 +141,7 @@ public final class PolishGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void adventureModePlayerCannotCapture(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -169,7 +165,7 @@ public final class PolishGameTests {
                 entity -> entity != original);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void villagerBabyAndGolemReleaseOnPlainGround(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         Villager adult = helper.spawnWithNoFreeWill(EntityType.VILLAGER, 2, 1, 2);
@@ -191,7 +187,7 @@ public final class PolishGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void releaseInLowCeilingFailsAndKeepsItem(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -213,14 +209,14 @@ public final class PolishGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void ownerCapturesTamedHorseAndKeepsOwnership(GameTestHelper helper) {
         Horse horse = helper.spawnWithNoFreeWill(EntityType.HORSE, 2, 1, 2);
         ServerPlayer owner = helper.makeMockServerPlayerInLevel();
         ServerPlayer thief = helper.makeMockServerPlayerInLevel();
         horse.setTamed(true);
         horse.setOwnerUUID(owner.getUUID());
-        horse.getInventory().setItem(0, new ItemStack(Items.SADDLE));
+        horse.getSlot(400).set(new ItemStack(Items.SADDLE));
         helper.assertFalse(EntityCapturer.capture(thief, horse).isPresent(), "le cheval d'un autre est protégé");
         helper.assertFalse(horse.isRemoved(), "le cheval doit rester");
         CapturedEntityData data = EntityCapturer.capture(owner, horse).orElse(null);
@@ -232,7 +228,7 @@ public final class PolishGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void sneakGestureOnNonLivingEntityIsNotIntercepted(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setShiftKeyDown(true);
@@ -241,15 +237,13 @@ public final class PolishGameTests {
                 helper.absoluteVec(new Vec3(2.5, 1.0, 2.5)).y, helper.absoluteVec(new Vec3(2.5, 1.0, 2.5)).z,
                 new ItemStack(Items.DIRT));
         helper.getLevel().addFreshEntity(item);
-        PlayerInteractEvent.EntityInteract event =
-                new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, item);
-        ModEvents.onEntityInteract(event);
-        helper.assertFalse(event.isCanceled(), "un objet au sol ne doit pas être intercepté");
+        helper.assertTrue(ModEvents.onEntityInteract(player, helper.getLevel(), InteractionHand.MAIN_HAND, item, null)
+                == InteractionResult.PASS, "un objet au sol ne doit pas être intercepté");
         helper.assertFalse(item.isRemoved(), "l'objet doit rester");
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void hostileIsNotReleasedInPeaceful(GameTestHelper helper) {
         Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();

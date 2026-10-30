@@ -4,6 +4,7 @@ import fr.pocketeverything.capture.EntityCapturer;
 import fr.pocketeverything.config.PocketEverythingConfig;
 import fr.pocketeverything.data.CapturedEntityData;
 import io.netty.buffer.Unpooled;
+import java.util.Set;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -30,20 +31,17 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class RobustnessGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
     private static final int OFFERS = 60;
     private static final int MAX_NETWORK_BYTES = 1_000_000;
 
-    private RobustnessGameTests() {
+    public RobustnessGameTests() {
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void capturedMountEjectsItsPassenger(GameTestHelper helper) {
         Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, 2, 1, 2);
         Chicken chicken = helper.spawnWithNoFreeWill(EntityType.CHICKEN, 2, 1, 2);
@@ -58,7 +56,7 @@ public final class RobustnessGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void capturedRiderLeavesItsMount(GameTestHelper helper) {
         Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, 2, 1, 2);
         Chicken chicken = helper.spawnWithNoFreeWill(EntityType.CHICKEN, 2, 1, 2);
@@ -71,7 +69,7 @@ public final class RobustnessGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void leashIsReleasedOnCapture(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -87,7 +85,7 @@ public final class RobustnessGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void tamedAnimalKeepsItsOwner(GameTestHelper helper) {
         Wolf wolf = helper.spawnWithNoFreeWill(EntityType.WOLF, 2, 1, 2);
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -105,7 +103,7 @@ public final class RobustnessGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void villagerPoiIsFreedAndMemoriesAreDropped(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         BlockPos site = helper.absolutePos(new BlockPos(4, 1, 4));
@@ -130,27 +128,26 @@ public final class RobustnessGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void configCanForbidHostilesAndExtraTypes(GameTestHelper helper) {
         Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, 2, 1, 2);
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 3, 1, 3);
         try {
             helper.assertTrue(EntityCapturer.canCapture(zombie), "hostiles autorisés par défaut");
-            PocketEverythingConfig.ALLOW_HOSTILE.set(false);
+            PocketEverythingConfig.set(new PocketEverythingConfig.Values(false, Set.of(), true));
             helper.assertTrue(!EntityCapturer.canCapture(zombie), "le zombie doit être refusé");
             helper.assertTrue(EntityCapturer.canCapture(cow), "la vache reste capturable");
-            PocketEverythingConfig.EXTRA_BLACKLIST.set(List.of("minecraft:cow"));
+            PocketEverythingConfig.set(new PocketEverythingConfig.Values(false, Set.of("minecraft:cow"), true));
             helper.assertTrue(!EntityCapturer.canCapture(cow), "la vache doit être refusée par la liste noire");
         } finally {
-            PocketEverythingConfig.ALLOW_HOSTILE.set(true);
-            PocketEverythingConfig.EXTRA_BLACKLIST.set(List.of());
+            PocketEverythingConfig.set(PocketEverythingConfig.DEFAULTS);
         }
         helper.assertTrue(EntityCapturer.canCapture(zombie) && EntityCapturer.canCapture(cow),
                 "la configuration doit être rétablie");
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void manyOffersStayWithinNetworkBudget(GameTestHelper helper) {
         Villager villager = helper.spawnWithNoFreeWill(EntityType.VILLAGER, 2, 1, 2);
         for (int i = 0; i < OFFERS; i++) {

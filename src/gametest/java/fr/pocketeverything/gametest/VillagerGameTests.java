@@ -26,15 +26,12 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 public final class VillagerGameTests {
 
-    private static final String TEMPLATE = "empty";
-    private static final String NAMESPACE = "pocket_everything";
+    private static final String TEMPLATE = "pocket_everything:empty";
 
-    private VillagerGameTests() {
+    public VillagerGameTests() {
     }
 
     private record Snapshot(String data, int xp, Tag offers, String name, float health, int age,
@@ -103,11 +100,11 @@ public final class VillagerGameTests {
 
     private static Villager roundTrip(GameTestHelper helper, ServerPlayer player, Villager villager) {
         player.setShiftKeyDown(true);
-        InteractionResult captured = player.interactOn(villager, InteractionHand.MAIN_HAND);
+        InteractionResult captured = Gestures.interactOn(player, villager, InteractionHand.MAIN_HAND);
         helper.assertTrue(captured.consumesAction(), "la capture devrait être consommée : " + captured + " main=" + player.getMainHandItem() + " vivant=" + villager.isAlive() + " retiré=" + villager.isRemoved());
         helper.assertTrue(villager.isRemoved(), "le villageois aurait dû disparaître");
         ItemStack held = player.getMainHandItem();
-        helper.assertTrue(held.is(ModItems.CAPTURED_ENTITY.get()), "l'item capturé devrait être en main");
+        helper.assertTrue(held.is(ModItems.CAPTURED_ENTITY), "l'item capturé devrait être en main");
         player.setShiftKeyDown(false);
         InteractionResult released = player.gameMode.useItemOn(player, helper.getLevel(), held,
                 InteractionHand.MAIN_HAND, groundHit(helper));
@@ -118,7 +115,7 @@ public final class VillagerGameTests {
         return found.get(0);
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void villagerRoundTripKeepsProperties(GameTestHelper helper) {
         Villager villager = configuredVillager(helper, VillagerType.SWAMP, 3, false);
         helper.assertTrue(!villager.getOffers().isEmpty(), "le villageois devrait avoir des offres");
@@ -131,7 +128,7 @@ public final class VillagerGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void villagerSurvivesTwoSuccessiveRoundTrips(GameTestHelper helper) {
         Villager villager = configuredVillager(helper, VillagerType.DESERT, 4, false);
         Snapshot before = snapshot(helper, villager);
@@ -144,7 +141,7 @@ public final class VillagerGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void babyVillagerKeepsAge(GameTestHelper helper) {
         Villager villager = configuredVillager(helper, VillagerType.TAIGA, 1, true);
         helper.assertTrue(villager.isBaby(), "le villageois de départ devrait être un bébé");
@@ -156,12 +153,12 @@ public final class VillagerGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void playerCannotBeCaptured(GameTestHelper helper) {
         ServerPlayer capturer = helper.makeMockServerPlayerInLevel();
         ServerPlayer target = helper.makeMockServerPlayerInLevel();
         capturer.setShiftKeyDown(true);
-        capturer.interactOn(target, InteractionHand.MAIN_HAND);
+        Gestures.interactOn(capturer, target, InteractionHand.MAIN_HAND);
         helper.assertTrue(!target.isRemoved(), "le joueur ne doit pas être retiré");
         helper.assertTrue(capturer.getMainHandItem().isEmpty(), "aucun item ne doit être donné");
         helper.assertTrue(!EntityCapturer.canCapture(target), "un joueur n'est pas capturable");
@@ -169,17 +166,17 @@ public final class VillagerGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = TEMPLATE, templateNamespace = NAMESPACE)
+    @GameTest(template = TEMPLATE)
     public static void creativeReleaseConsumesItemWithoutDuplicate(GameTestHelper helper) {
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, 2, 1, 2);
         UUID originalId = cow.getUUID();
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.CREATIVE);
         player.setShiftKeyDown(true);
-        player.interactOn(cow, InteractionHand.MAIN_HAND);
+        Gestures.interactOn(player, cow, InteractionHand.MAIN_HAND);
         helper.assertTrue(cow.isRemoved(), "la vache aurait dû être capturée en créatif");
         ItemStack held = player.getMainHandItem();
-        helper.assertTrue(held.is(ModItems.CAPTURED_ENTITY.get()), "l'item capturé devrait être en main");
+        helper.assertTrue(held.is(ModItems.CAPTURED_ENTITY), "l'item capturé devrait être en main");
         player.setShiftKeyDown(false);
         player.gameMode.useItemOn(player, helper.getLevel(), held, InteractionHand.MAIN_HAND, groundHit(helper));
         helper.assertTrue(player.getMainHandItem().isEmpty(), "l'item doit être consommé en créatif");
