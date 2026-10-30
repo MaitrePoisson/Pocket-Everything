@@ -3,11 +3,10 @@
 ## Lancer
 
 - **Client de développement** : `./gradlew runClient` (JDK 21). Créer un monde créatif ou survie.
-- **Installation réelle** : NeoForge 21.1.x (21.1.1 à 21.1.265) pour Minecraft 1.21.1, puis `deliverable/pocket-everything-fabric-1.21.1.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
+- **Installation réelle** : Fabric Loader 0.17.3 ou plus récent et Fabric API pour Minecraft 1.21.1, puis `deliverable/pocket-everything-fabric-1.21.1.jar` dans `mods/` (après avoir supprimé tout ancien `pocket-everything-*.jar`, client et serveur).
 - **Serveur dédié** : même jar dans `mods/` du serveur (`./gradlew runServer` en développement).
-- **Vérification automatique** : `bash .athanor/check.sh` (build, 33 tests JUnit, 86 GameTests, captures d'écran, copie du jar dans `deliverable/`).
+- **Vérification automatique** : `bash .athanor/check.sh` (build, 42 tests JUnit, 87 GameTests, démarrage d'un serveur dédié, captures d'écran, copie du jar dans `deliverable/`).
 
-- **Autres versions de NeoForge** : `bash .athanor/matrix.sh 21.1.1 21.1.265` (JUnit, serveur + GameTests, chargement du client pour chaque version ; résultat dans `.athanor/.verif/matrix.txt`). Le jar doit se charger sur toute la branche 21.1.1 à 21.1.265.
 
 ## Commandes de jeu utiles
 
@@ -79,11 +78,11 @@
 - [ ] Coffre verrouillé ou zone protégée : refus avec message. Mode Aventure : pas de prise.
 - [ ] Lâcher le coffre (Q) ou mourir avec : l'objet ne brûle pas, ne se détruit pas, ne disparaît pas ; le ramasser et le poser retrouve le contenu.
 - [ ] Quitter et recharger le monde (ou se reconnecter) en portant le coffre : contenu intact. Changer de dimension : idem.
-- [ ] `carryChestsEnabled=false` dans la config : le geste ouvre le coffre normalement.
+- [ ] `"carryChestsEnabled": false` dans la config : le geste ouvre le coffre normalement.
 - [ ] Non-régression : capture et relâche d'une créature, bras visible, inchangés.
 
 ### Configuration
-- [ ] `config/pocket_everything-common.toml` : `allowHostile=false` interdit zombies, creepers... ; `extraBlacklist=["minecraft:cow"]` interdit les vaches.
+- [ ] `config/pocket_everything.json` : `"allowHostile": false` interdit zombies, creepers... ; `"extraBlacklist": ["minecraft:cow"]` interdit les vaches ; un fichier invalide ne fait pas planter le jeu (valeurs par défaut, avertissement dans le journal).
 
 ### Serveur dédié et multijoueur
 - [ ] Le serveur démarre sans erreur avec le jar. Un client avec le mod capture/relâche, et un second joueur voit la créature réapparaître.
@@ -91,6 +90,6 @@
 - [ ] Villageois à beaucoup d'échanges (60 offres ≈ 11 Ko) : la capture ne déconnecte personne.
 
 ### Logo
-- [ ] Écran « Mods » de NeoForge : Pocket-Everything affiche le logo (pixel net, non flou) à côté de son nom et de sa description.
+- [ ] Écran « Mods » (Mod Menu, si installé) ou liste des mods du lanceur : Pocket-Everything affiche le logo (pixel net, non flou) à côté de son nom et de sa description.
 - [ ] Écran des packs de ressources : l'icône du pack de Pocket-Everything est le logo.
 - [ ] README sur GitHub : logo centré en tête, sans image cassée.

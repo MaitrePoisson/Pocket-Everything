@@ -4,7 +4,7 @@
 
 # Pocket-Everything
 
-Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre, une Toolbox de Create ou tout autre bloc à inventaire** dans les deux mains, contenu compris, et de le reposer à l'identique.
+Mod **Fabric 1.21.1** (Java 21) qui permet de **capturer n'importe quelle créature** (mob, animal, villageois) à mains nues et de la transporter sous forme d'objet, puis de la relâcher ailleurs avec toutes ses propriétés intactes. Il permet aussi de **porter un coffre, une Toolbox de Create ou tout autre bloc à inventaire** dans les deux mains, contenu compris, et de le reposer à l'identique.
 
 ![Une vache capturée et un coffre porté, vus à la première personne](docs/images/apercu.png)
 
@@ -12,7 +12,7 @@ Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle cré
 
 - [Fonctionnalités](#fonctionnalités)
 - [Prérequis](#prérequis)
-- [Installation](#installation)
+- [Compiler et installer la version Fabric 1.21.1](#compiler-et-installer-la-version-fabric-1211)
 - [Utilisation](#utilisation)
 - [Configuration](#configuration)
 - [Structure du projet](#structure-du-projet)
@@ -46,31 +46,30 @@ Mod **NeoForge 1.21.1** (Java 21) qui permet de **capturer n'importe quelle cré
 
 | Pour… | Il faut |
 |---|---|
-| Jouer | Minecraft Java Edition **1.21.1** et **NeoForge 21.1.x** (de 21.1.1 à 21.1.265, voir [Versions de NeoForge prises en charge](#versions-de-neoforge-prises-en-charge)), Java 21 |
+| Jouer | Minecraft Java Edition **1.21.1**, **Fabric Loader 0.17.3 ou plus récent** et **Fabric API** (testé avec 0.116.17+1.21.1), Java 21 |
 | Compiler | **JDK 21** et accès à Internet (Gradle 8.14.3 est téléchargé par le script `gradlew`) |
 | Lancer le jeu de développement | Compte Minecraft non requis : le client de développement démarre en mode hors ligne |
 
 Le mod est requis des deux côtés : le client pour l'affichage, le serveur pour la logique.
 
-### Versions de NeoForge prises en charge
+### Versions prises en charge
 
-| Version de NeoForge | Prise en charge |
+| Élément | Prise en charge |
 |---|---|
-| 21.1.1 à 21.1.265 (toute la branche 21.1.x pour Minecraft 1.21.1) | Oui. Testées : 21.1.1 (la plus ancienne), 21.1.100, 21.1.200 et 21.1.265 (la plus récente) : tests JUnit, 73 GameTests sur serveur dédié et chargement du client, tout est vert. |
-| 21.0.x et 20.x | Non : autre version de Minecraft. |
-| 21.2 et plus | Non : autre version de Minecraft (la plage déclarée est `[21.1.1,22)`). |
+| Minecraft 1.21.1 | Oui (seule version visée). |
+| Fabric Loader | 0.17.3 ou plus récent (borne basse `fabric_loader_version` de `gradle.properties`, injectée dans `fabric.mod.json`). |
+| Fabric API | Requise ; testée en 0.116.17+1.21.1. |
+| Quilt, NeoForge, Forge | Non : cette branche (`fabric-1.21.1`) ne vise que Fabric. La version NeoForge est sur `main`. |
 
-**Message « requires neoforge 21.1.265 or above » (ou `Expected range: '[21.1.265,)'`) sur une version 21.1.x plus ancienne, par exemple 21.1.235 :** ce message vient d'un jar antérieur à la version 1.0.1 qui est encore dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis y copier `pocket-everything-fabric-1.21.1.jar`.
+**Message de Fabric sur une dépendance manquante :** installer Fabric API dans `mods/`. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur avant d'y copier `pocket-everything-fabric-1.21.1.jar`.
 
-Auparavant, le mod exigeait NeoForge 21.1.265 ou plus récent (la borne basse de la plage était recopiée de la version de compilation), ce qui le faisait refuser sur les autres versions 21.1.x avec « requires neoforge 21.1.265 or above ». La borne basse est maintenant `neo_min_version` dans `gradle.properties`, distincte de `neo_version` (version de compilation).
-
-## Installation
+## Compiler et installer la version Fabric 1.21.1
 
 ### Utiliser le mod
 
-1. Installer NeoForge 21.1.x pour Minecraft 1.21.1.
+1. Installer Fabric Loader pour Minecraft 1.21.1 (lanceur officiel ou launcher de votre choix), puis copier **Fabric API** dans `mods/`.
 2. Supprimer tout ancien `pocket-everything-*.jar` du dossier `mods/` du client **et** du serveur, puis copier `deliverable/pocket-everything-fabric-1.21.1.jar` dans ces deux dossiers `mods/`.
-3. Lancer le jeu ou le serveur avec le profil NeoForge. Le fichier de configuration `config/pocket_everything-common.toml` est créé au premier démarrage.
+3. Lancer le jeu ou le serveur avec le profil Fabric. Le fichier de configuration `config/pocket_everything.json` est créé au premier démarrage.
 
 ### Compiler le jar depuis les sources
 
@@ -128,13 +127,15 @@ Pour un serveur de développement : `./gradlew runServer` (le serveur ne s'arrê
 
 ## Configuration
 
-Fichier `config/pocket_everything-common.toml` (créé au premier lancement, dans `run/config/` en développement) :
+Fichier `config/pocket_everything.json` (créé au premier lancement, dans `run/config/` en développement) :
 
 | Option | Défaut | Rôle |
 |---|---|---|
 | `allowHostile` | `true` | Autorise la capture de monstres hostiles (zombies, creepers…). |
 | `carryChestsEnabled` | `true` | Active la prise et la pose de coffres. À `false`, le geste ouvre le coffre normalement. |
 | `extraBlacklist` | `[]` | Identifiants d'entités supplémentaires interdits, par exemple `["minecraft:warden"]`. |
+
+Si le fichier est absent, il est créé avec ces valeurs ; s'il est illisible ou invalide, les valeurs par défaut sont utilisées et un avertissement est journalisé. Il est lu au démarrage (redémarrer pour appliquer un changement).
 
 La liste noire de base est une étiquette de données modifiable par datapack : `data/pocket_everything/tags/entity_type/blacklist.json`. Les blocs portables sont dans `data/pocket_everything/tags/block/carryable_chests.json` (`minecraft:chest`, `minecraft:trapped_chest` et `create:toolbox`), les exclusions dans `never_carryable.json` (`create:item_vault`).
 
@@ -163,20 +164,21 @@ et pour interdire un bloc (même s'il est listé ailleurs) : `data/pocket_everyt
 ## Structure du projet
 
 ```
-build.gradle, gradle.properties   Construction (ModDevGradle) et versions du mod
+build.gradle, gradle.properties   Construction (Fabric Loom) et versions du mod
 src/main/java/fr/pocketeverything/
-  PocketEverything.java                    Point d'entrée du mod
+  PocketEverything.java                    Point d'entrée du mod (ModInitializer)
   capture/                        Capture et relâche des créatures
   chest/                          Prise et pose des coffres
   config/                         Options de configuration
   data/                           Composants de données des deux objets
-  event/                          Gestionnaires d'événements (clics, main secondaire…)
+  event/                          Gestionnaires d'événements Fabric (clics, main secondaire…)
+  mixin/                          Mixins (échange de mains, pose de bras)
   item/                           Objets Captured Entity et Carried Chest
   registry/                       Enregistrement des objets et des composants
-  client/                         Rendu (modèles, bras, échelle) — côté client seulement
-src/main/resources/               Langues, modèles, étiquettes, descripteur du mod, logo.png et pack.png
+  client/                         Rendu (modèles, bras, échelle) et point d'entrée client
+src/main/resources/               Langues, modèles, étiquettes, fabric.mod.json, mixins, logo.png et pack.png
 src/test/                         Tests unitaires JUnit 5
-src/gametest/                     Tests de jeu (GameTests), hors du jar
+src/gametest/                     Tests de jeu (GameTests Fabric), hors du jar
 src/dev/                          Outil de captures d'écran du client de développement
 tools/                            Générateur de la structure vide des GameTests, déclinaisons du logo (make_logo.py)
 deliverable/                      Jar prêt à installer
@@ -192,21 +194,22 @@ TEST_GUIDE.md                     Guide de test manuel
 | `./gradlew runClient` | Lance un client Minecraft de développement avec le mod |
 | `./gradlew runServer` | Lance un serveur de développement |
 | `./gradlew runScreenshot` | Lance le client, prend des captures dans `build/screenshots/` |
+| `./gradlew runGameTest` | Lance les GameTests sur un serveur Fabric |
 
-La version du mod, celle de Minecraft et celle de NeoForge sont dans `gradle.properties`.
+La version du mod, celle de Minecraft, de Fabric Loader et de Fabric API sont dans `gradle.properties`.
 
 ## Tests
 
 ```bash
 ./gradlew test               # tests unitaires JUnit 5 (src/test)
-./gradlew runGameTestServer  # tests de jeu (src/gametest), code de sortie 1 si l'un échoue
+./gradlew runGameTest        # tests de jeu (src/gametest), code de sortie 1 si l'un échoue
 ```
 
 Les tests de jeu simulent des joueurs dans un monde réel : capture, relâche, villageois, coffre rempli, bloc à inventaire non-coffre (bloc de test hors du jar), sauvegarde et rechargement, mort et récupération, changement de dimension, serveur dédié, cas limites.
 
 ## Versionnage
 
-Le numéro de version est `MAJEUR.MINEUR.PATCH`. Sa **seule source de vérité** est `mod_version` dans `gradle.properties` : il est injecté dans `neoforge.mods.toml` (donc affiché dans la liste des mods de NeoForge), dans le nom du jar et dans une ligne du journal au démarrage. Le journal des changements est `CHANGELOG.md`, chaque version livrée porte un tag git `vX.Y.Z`.
+Le numéro de version est `MAJEUR.MINEUR.PATCH`. Sa **seule source de vérité** est `mod_version` dans `gradle.properties` : il est injecté dans `fabric.mod.json` (donc affiché dans la liste des mods), dans le nom du jar et dans une ligne du journal au démarrage. Le journal des changements est `CHANGELOG.md`, chaque version livrée porte un tag git `vX.Y.Z`.
 
 À chaque demande livrée, on détermine le type de changement et on incrémente, sans jamais réutiliser ni sauter un numéro :
 
@@ -224,7 +227,7 @@ Procédure de livraison : modifier `mod_version`, ajouter l'entrée datée en t�
 
 1. Créer une branche à partir de `main`.
 2. Faire un changement ciblé, accompagné d'un test (JUnit pour la logique pure, GameTest pour le comportement en jeu).
-3. Vérifier que `./gradlew build` et `./gradlew runGameTestServer` réussissent.
+3. Vérifier que `./gradlew build` et `./gradlew runGameTest` réussissent.
 4. Ouvrir une demande de fusion en décrivant le comportement modifié et la manière de le tester.
 
 Les messages de commit sont courts, à l'impératif, et décrivent ce que le commit apporte. Tout contenu ajouté doit être original ou sous licence libre, avec sa source notée dans `docs/CREDITS.md`.

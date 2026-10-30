@@ -2,6 +2,12 @@
 
 Format : `MAJEUR.MINEUR.PATCH` (règles dans le README, section « Versionnage »). Les versions les plus récentes sont en haut.
 
+## 1.1.1 (Fabric) — 2026-10-30
+
+- Branche `fabric-1.21.1` : portage du mod sur Fabric (Loom, Fabric Loader 0.17.3, Fabric API 0.116.17+1.21.1), jar `pocket-everything-fabric-1.21.1.jar`. Même version du mod que `main` (1.1.1).
+- Mêmes gestes, protections, messages et rendus que la version NeoForge ; configuration `config/pocket_everything.json` (au lieu du fichier TOML commun), mixins pour l'échange de mains et la pose de bras.
+- 42 tests JUnit et 87 GameTests (fabric-gametest-api) verts, serveur dédié démarré sans erreur, 28 captures client identiques à `main`.
+
 ## 1.1.1 — 2026-10-30
 
 - Demande normale (+1 sur le patch) : le jar se nomme `pocket-everything-<loader>-<version-minecraft>.jar` (`pocket-everything-neoforge-1.21.1.jar`), le loader et la version de Minecraft venant de `mod_loader` et `minecraft_version` dans `gradle.properties`. La version du mod n'est plus dans le nom du fichier.
