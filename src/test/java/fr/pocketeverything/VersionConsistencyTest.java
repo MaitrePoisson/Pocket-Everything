@@ -58,7 +58,9 @@ class VersionConsistencyTest {
 
     @Test
     void docsCiteTheCurrentJar() throws IOException {
-        String jar = "pocket-everything-" + modVersion() + ".jar";
+        Properties properties = new Properties();
+        properties.load(Files.newBufferedReader(ROOT.resolve("gradle.properties"), StandardCharsets.UTF_8));
+        String jar = "pocket-everything-" + properties.getProperty("mod_loader") + "-" + properties.getProperty("minecraft_version") + ".jar";
         assertTrue(read("README.md").contains(jar));
         assertTrue(read("TEST_GUIDE.md").contains(jar));
     }

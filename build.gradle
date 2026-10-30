@@ -7,7 +7,11 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = 'pocket-everything'
+    archivesName = "pocket-everything-${mod_loader}-${minecraft_version}"
+}
+
+tasks.withType(Jar).configureEach {
+    archiveVersion = ''
 }
 
 java {

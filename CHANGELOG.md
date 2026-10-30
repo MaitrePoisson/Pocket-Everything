@@ -2,6 +2,11 @@
 
 Format : `MAJEUR.MINEUR.PATCH` (règles dans le README, section « Versionnage »). Les versions les plus récentes sont en haut.
 
+## 1.1.1 — 2026-10-30
+
+- Demande normale (+1 sur le patch) : le jar se nomme `pocket-everything-<loader>-<version-minecraft>.jar` (`pocket-everything-neoforge-1.21.1.jar`), le loader et la version de Minecraft venant de `mod_loader` et `minecraft_version` dans `gradle.properties`. La version du mod n'est plus dans le nom du fichier.
+- Aucun changement de comportement ni de métadonnées du mod.
+
 ## 1.1.0 — 2026-10-29
 
 - Gros ajout (règle : +1 sur le numéro du milieu) : le port de blocs ne se limite plus aux coffres. Toute block entity de l'étiquette `carryable_chests` se prend et se repose avec son contenu ; la **Toolbox de Create** est portable par défaut.
